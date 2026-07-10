@@ -1,0 +1,577 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>InternTrack | Profile</title>
+    <link rel="icon" href="images/InternTrack.png" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"
+    />
+
+    <style>
+      /* RESET */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family:
+          Segoe UI,
+          Tahoma,
+          Geneva,
+          Verdana,
+          sans-serif;
+      }
+
+      body {
+        background: #fff9f4;
+        display: flex;
+        color: #005f73;
+      }
+
+      /* ==========================
+      SIDEBAR
+      ========================== */
+
+      .sidebar {
+        width: 250px;
+        height: 100vh;
+        background: #005f73;
+        color: white;
+        position: fixed;
+        left: 0;
+        top: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 30px 15px;
+        transition: all 0.3s ease;
+      }
+
+      .sidebar.collapsed {
+        width: 92px;
+        padding: 30px 20px;
+      }
+
+      .sidebar-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        margin-bottom: 20px;
+        transition: all 0.3s ease;
+      }
+
+      .sidebar.collapsed .sidebar-header {
+        justify-content: center;
+      }
+
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        transition: 0.3s;
+
+        overflow: hidden;
+        white-space: nowrap;
+
+        width: 170px;
+        opacity: 1;
+
+        transition:
+          width 0.3s ease,
+          opacity 0.25s ease;
+      }
+
+      .logo img {
+        width: 45px;
+        height: 45px;
+        border-radius: 6px;
+      }
+
+      .logo h2 {
+        font-size: 20px;
+        color: #ee9b00;
+        white-space: nowrap;
+      }
+
+      .sidebar.collapsed .logo {
+        width: 0;
+        opacity: 0;
+      }
+      .sidebar ul {
+        list-style: none;
+      }
+
+      .sidebar li {
+        margin: 10px 0;
+      }
+
+      .sidebar a {
+        display: flex;
+        align-items: center;
+
+        height: 52px;
+        padding: 0 14px;
+        gap: 14px;
+
+        border-radius: 10px;
+        text-decoration: none;
+        color: #fff;
+
+        transition:
+          background-color 0.25s ease,
+          color 0.25s ease;
+      }
+
+      .sidebar a i {
+        width: 24px;
+        min-width: 24px;
+        font-size: 20px;
+        text-align: center;
+        flex-shrink: 0;
+      }
+
+      .sidebar a span {
+        white-space: nowrap;
+        overflow: hidden;
+
+        max-width: 140px;
+        opacity: 1;
+
+        transition:
+          max-width 0.3s ease,
+          opacity 0.2s ease;
+      }
+
+      .sidebar.collapsed a {
+        justify-content: center;
+
+        width: 52px;
+        height: 52px;
+
+        padding: 0;
+        margin: 0 auto;
+        gap: 0;
+      }
+
+      .sidebar.collapsed a span {
+        max-width: 0;
+        opacity: 0;
+      }
+      .sidebar a:hover,
+      .sidebar .active {
+        background: #0a9396;
+      }
+
+      .logout a {
+        background: #ee9b00;
+        text-align: center;
+        font-weight: bold;
+      }
+
+      .logout a:hover {
+        background: #d98f00;
+      }
+
+      /* ==========================
+   MAIN CONTENT
+========================== */
+
+      .main {
+        margin-left: 250px;
+        width: calc(100% - 250px);
+        padding: 35px;
+        transition: all 0.3s ease;
+      }
+
+      .main.expanded {
+        margin-left: 92px;
+        width: calc(100% - 92px);
+      }
+
+      /* ==========================
+   MENU TOGGLE
+========================== */
+
+      #menu-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        width: 52px;
+        height: 52px;
+
+        padding: 0;
+
+        border: none;
+        border-radius: 10px;
+        background: transparent;
+        color: white;
+        cursor: pointer;
+        transition: 0.3s ease;
+      }
+
+      #menu-toggle:hover {
+        background: #0a9396;
+      }
+
+      #menu-toggle i {
+        font-size: 20px; /* same size as sidebar icons */
+        line-height: 1;
+        transition:
+          opacity 0.15s ease,
+          transform 0.3s ease;
+      }
+
+      .sidebar.collapsed #menu-toggle i {
+        transform: rotate(180deg);
+      }
+
+      .sidebar.collapsed a span {
+        display: none;
+      }
+
+      .sidebar.collapsed .logout span {
+        display: none;
+      }
+
+      .sidebar.collapsed .logout a {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      /* HEADER */
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+      }
+
+      .date {
+        background: white;
+        padding: 12px 18px;
+        border-radius: 12px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        font-weight: 600;
+      }
+
+      /* CARD */
+      .card {
+        background: white;
+        padding: 25px;
+        border-radius: 18px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+        margin-bottom: 20px;
+      }
+
+      /* PROFILE */
+      .profile-header {
+        display: flex;
+        gap: 20px;
+        align-items: center;
+      }
+
+      .profile-pic {
+        width: 90px;
+        height: 90px;
+        border-radius: 50%;
+        border: 3px solid #0a9396;
+      }
+
+      /* INPUTS */
+      .info-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+      }
+
+      .field {
+        background: #f8f8f8;
+        padding: 12px;
+        border-radius: 10px;
+      }
+
+      .field span {
+        font-size: 12px;
+        color: #666;
+      }
+
+      .field input {
+        width: 100%;
+        border: none;
+        background: transparent;
+        font-size: 15px;
+        font-weight: 600;
+        color: #005f73;
+        margin-top: 5px;
+        outline: none;
+      }
+
+      /* BUTTONS */
+      .btn {
+        padding: 12px 18px;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        font-weight: bold;
+        margin-right: 10px;
+      }
+
+      .btn-primary {
+        background: #ee9b00;
+        color: white;
+      }
+      .btn-primary:hover {
+        background: #d98f00;
+      }
+
+      .btn-secondary {
+        background: #0a9396;
+        color: white;
+      }
+      .btn-secondary:hover {
+        opacity: 0.9;
+      }
+
+      /* disabled look */
+      input[disabled] {
+        opacity: 0.8;
+      }
+
+      /* RESPONSIVE */
+      @media (max-width: 900px) {
+        .sidebar {
+          width: 210px;
+        }
+        .main {
+          margin-left: 210px;
+          width: calc(100% - 210px);
+        }
+        .info-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 768px) {
+        body {
+          flex-direction: column;
+        }
+        .sidebar {
+          position: relative;
+          width: 100%;
+          height: auto;
+        }
+        .main {
+          margin-left: 0;
+          width: 100%;
+        }
+        .profile-header {
+          flex-direction: column;
+          text-align: center;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="main" id="main">
+      <!-- SIDEBAR -->
+
+      <div class="sidebar" id="sidebar">
+        <!-- Top Section -->
+        <div>
+          <div class="sidebar-header">
+            <div class="logo" id="logo">
+              <img src="images/InternTrack.png" alt="Logo" />
+              <h2>InternTrack</h2>
+            </div>
+
+            <button id="menu-toggle">
+              <i class="bi bi-chevron-double-left" id="menu-icon"></i>
+            </button>
+          </div>
+
+          <ul>
+            <li>
+              <a href="dashboard.html">
+                <i class="bi bi-ui-checks-grid"></i>
+                <span>Dashboard</span>
+              </a>
+            </li>
+
+            <li>
+              <a href="projects.html">
+                <i class="bi bi-folder2"></i>
+                <span>Projects</span>
+              </a>
+            </li>
+
+            <li>
+              <a href="calendar.html">
+                <i class="bi bi-calendar-event"></i>
+                <span>Calendar</span>
+              </a>
+            </li>
+
+            <li>
+              <a href="reports.html">
+                <i class="bi bi-bar-chart-line"></i>
+                <span>Reports</span>
+              </a>
+            </li>
+
+            <li>
+              <a href="profile.html" class="active">
+                <i class="bi bi-person-circle"></i>
+                <span>Profile</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Bottom Section -->
+        <div class="logout">
+          <a href="index.html">Log Out</a>
+        </div>
+      </div>
+
+      <!-- PERSONAL INFO -->
+      <div class="card">
+        <h2>Personal Information</h2>
+        <br />
+
+        <div class="info-grid">
+          <div class="field">
+            <span>First Name</span>
+            <input value="Juan" disabled />
+          </div>
+
+          <div class="field">
+            <span>Last Name</span>
+            <input value="Dela Cruz" disabled />
+          </div>
+
+          <div class="field">
+            <span>Email</span>
+            <input value="juandelacruz@gmail.com" disabled />
+          </div>
+
+          <div class="field">
+            <span>Department</span>
+            <input value="IT Department" disabled />
+          </div>
+
+          <div class="field">
+            <span>Student ID</span>
+            <input value="2023-12345" disabled />
+          </div>
+        </div>
+      </div>
+
+      <!-- INTERNSHIP -->
+      <div class="card">
+        <h2>Internship Details</h2>
+        <br />
+
+        <div class="info-grid">
+          <div class="field">
+            <span>Company</span>
+            <input value="Dexter's Laboratory" disabled />
+          </div>
+
+          <div class="field">
+            <span>Company Address</span>
+            <input value="Quezon City, Metro Manila" disabled />
+          </div>
+
+          <div class="field">
+            <span>Supervisor</span>
+            <input value="Mr. John Doe" disabled />
+          </div>
+
+          <div class="field">
+            <span>OJT Professor</span>
+            <input value="Prof. Jane Doe" disabled />
+          </div>
+
+          <div class="field">
+            <span>Hours This Week</span>
+            <input value="16 hrs" disabled />
+          </div>
+
+          <div class="field">
+            <span>Hours This Month</span>
+            <input value="56 hrs" disabled />
+          </div>
+        </div>
+      </div>
+
+      <!-- ACTIONS -->
+      <div class="card">
+        <button class="btn btn-primary" onclick="enableEdit()">
+          Edit Profile
+        </button>
+        <button class="btn btn-secondary" onclick="disableEdit()">
+          Save Changes
+        </button>
+      </div>
+    </div>
+
+    <script>
+      const toggleBtn = document.getElementById("menu-toggle");
+      const menuIcon = document.getElementById("menu-icon");
+      const sidebar = document.getElementById("sidebar");
+      const main = document.getElementById("main");
+
+      const isCollapsed = localStorage.getItem("sidebar") === "collapsed";
+
+      if (isCollapsed) {
+        sidebar.classList.add("collapsed");
+        main.classList.add("expanded");
+        menuIcon.classList.replace("bi-chevron-double-left", "bi-list");
+      } else {
+        // FORCE CLEAN DEFAULT STATE
+        sidebar.classList.remove("collapsed");
+        main.classList.remove("expanded");
+        menuIcon.classList.replace("bi-list", "bi-chevron-double-left");
+      }
+
+      toggleBtn.addEventListener("click", () => {
+        menuIcon.style.opacity = "0";
+
+        setTimeout(() => {
+          const isNowCollapsed = sidebar.classList.toggle("collapsed");
+          main.classList.toggle("expanded");
+
+          // SAVE STATE
+          localStorage.setItem(
+            "sidebar",
+            isNowCollapsed ? "collapsed" : "expanded",
+          );
+
+          // ICON SWITCH
+          if (isNowCollapsed) {
+            menuIcon.classList.replace("bi-chevron-double-left", "bi-list");
+          } else {
+            menuIcon.classList.replace("bi-list", "bi-chevron-double-left");
+          }
+
+          menuIcon.style.opacity = "1";
+        }, 150);
+      });
+    </script>
+    <script>
+      function enableEdit() {
+        document.querySelectorAll("input").forEach((i) => (i.disabled = false));
+      }
+
+      function disableEdit() {
+        document.querySelectorAll("input").forEach((i) => (i.disabled = true));
+      }
+    </script>
+  </body>
+</html>

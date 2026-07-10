@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="images/png" href="images/InternTrack.png" />
+    <title>InternTrack</title>
+
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family:
+          Segoe UI,
+          Tahoma,
+          Geneva,
+          Verdana,
+          sans-serif;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        background: #fff9f4;
+        color: #005f73;
+      }
+
+      /* Navigation */
+
+      nav {
+        background: #005f73;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 18px 8%;
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+      }
+
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 28px;
+        font-weight: bold;
+        color: #ee9b00;
+      }
+
+      .logo img {
+        width: 42px;
+        height: 42px;
+        object-fit: contain;
+        border-radius: 5px;
+      }
+
+      nav ul {
+        display: flex;
+        align-items: center;
+        gap: 28px;
+        list-style: none;
+      }
+
+      nav a {
+        color: white;
+        text-decoration: none;
+        font-weight: 500;
+        transition: 0.3s;
+      }
+
+      nav a:hover {
+        color: #ee9b00;
+      }
+
+      .auth-buttons {
+        display: flex;
+        gap: 12px;
+      }
+
+      .login-btn {
+        background: #ee9b00;
+        color: white;
+        padding: 10px 24px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: 0.3s;
+      }
+
+      .login-btn:hover {
+        background: #d98f00;
+      }
+
+      /* Hero */
+
+      .hero {
+        min-height: 90vh;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 70px 8%;
+        gap: 60px;
+        flex-wrap: wrap;
+      }
+
+      .hero-text {
+        flex: 1;
+        min-width: 320px;
+      }
+
+      .hero-text h1 {
+        font-size: 58px;
+        line-height: 1.2;
+        margin-bottom: 25px;
+      }
+
+      .hero-text p {
+        font-size: 18px;
+        line-height: 1.8;
+        color: #555;
+        max-width: 620px;
+        margin-bottom: 35px;
+      }
+
+      .hero-buttons {
+        display: flex;
+        gap: 18px;
+        flex-wrap: wrap;
+      }
+
+      .primary-btn,
+      .secondary-btn {
+        padding: 16px 34px;
+        border-radius: 10px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: 0.3s;
+      }
+
+      .primary-btn {
+        background: #ee9b00;
+        color: white;
+      }
+
+      .primary-btn:hover {
+        background: #d98f00;
+      }
+
+      .secondary-btn {
+        border: 2px solid #005f73;
+        color: #005f73;
+      }
+
+      .secondary-btn:hover {
+        background: #005f73;
+        color: white;
+      }
+
+      /* Hero Card */
+
+      .hero-card {
+        width: 360px;
+        background: white;
+        border-radius: 20px;
+        padding: 35px;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+      }
+
+      .hero-card h2 {
+        margin-bottom: 25px;
+      }
+
+      .stat {
+        display: flex;
+        justify-content: space-between;
+        margin: 18px 0;
+        padding-bottom: 12px;
+        border-bottom: 1px solid #eee;
+      }
+
+      .progress-bar {
+        width: 100%;
+        height: 18px;
+        background: #ddd;
+        border-radius: 20px;
+        overflow: hidden;
+        margin: 25px 0;
+      }
+
+      .progress {
+        width: 72%;
+        height: 100%;
+        background: #0a9396;
+      }
+
+      .progress-text {
+        text-align: center;
+        font-size: 18px;
+        font-weight: bold;
+        color: #005f73;
+      }
+
+      .features {
+        background: #005f73;
+        color: white;
+        padding: 100px 8%;
+      }
+
+      .features h2 {
+        text-align: center;
+        font-size: 40px;
+        margin-bottom: 60px;
+      }
+
+      .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 30px;
+      }
+
+      .feature-card {
+        background: white;
+        color: #005f73;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      }
+
+      .feature-card h3 {
+        margin-bottom: 15px;
+        color: #0a9396;
+      }
+
+      .feature-card p {
+        line-height: 1.7;
+      }
+
+      /* Responsive */
+
+      @media (max-width: 1000px) {
+        nav {
+          flex-wrap: wrap;
+          gap: 20px;
+        }
+
+        nav ul {
+          flex-wrap: wrap;
+          justify-content: center;
+        }
+
+        .hero {
+          text-align: center;
+          justify-content: center;
+        }
+
+        .hero-text h1 {
+          font-size: 44px;
+        }
+
+        .hero-buttons {
+          justify-content: center;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <nav>
+      <div class="logo">
+        <img src="images/InternTrack.png" alt="InternTrack Logo" />
+        <span>InternTrack</span>
+      </div>
+
+      <ul>
+        <li><a href="#">Home</a></li>
+        <li><a href="#">Features</a></li>
+        <li><a href="#">How It Works</a></li>
+        <li><a href="#">FAQs</a></li>
+        <li><a href="#">About</a></li>
+        <li><a href="#">Contact</a></li>
+      </ul>
+
+      <div class="auth-buttons">
+        <a href="login.html" class="login-btn">Log In</a>
+      </div>
+    </nav>
+
+    <section class="hero">
+      <div class="hero-text">
+        <h1>Track Your OJT Hours with Confidence</h1>
+
+        <p>
+          Log attendance, monitor your remaining internship hours, manage
+          absences, and stay on track toward completing your practicum
+          requirements—all from one modern and intuitive dashboard.
+        </p>
+
+        <div class="hero-buttons">
+          <a href="#" class="primary-btn">Start Tracking</a>
+          <a href="#" class="secondary-btn">Learn More</a>
+        </div>
+      </div>
+
+      <div class="hero-card">
+        <h2>Your Internship Progress</h2>
+
+        <div class="stat">
+          <span>Completed Hours</span>
+          <strong>360 hrs</strong>
+        </div>
+
+        <div class="stat">
+          <span>Remaining Hours</span>
+          <strong>140 hrs</strong>
+        </div>
+
+        <div class="stat">
+          <span>Attendance</span>
+          <strong>96%</strong>
+        </div>
+
+        <div class="progress-bar">
+          <div class="progress"></div>
+        </div>
+
+        <div class="progress-text">72% Completed</div>
+      </div>
+    </section>
+
+    <section class="features">
+      <h2>Why Choose InternTrack?</h2>
+
+      <div class="feature-grid">
+        <div class="feature-card">
+          <h3>Track Hours</h3>
+          <p>Automatically monitor your completed and remaining OJT hours.</p>
+        </div>
+
+        <div class="feature-card">
+          <h3>Attendance</h3>
+          <p>Clock in, clock out, and manage daily attendance records.</p>
+        </div>
+
+        <div class="feature-card">
+          <h3>Reports</h3>
+          <p>Generate weekly and monthly internship reports.</p>
+        </div>
+      </div>
+    </section>
+  </body>
+</html>

@@ -1,0 +1,1326 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>InternTrack | Dashboard</title>
+    <link rel="icon" href="images/InternTrack.png" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
+    />
+
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family:
+          Segoe UI,
+          Tahoma,
+          Geneva,
+          Verdana,
+          sans-serif;
+      }
+
+      :root {
+        /* Colors */
+        --primary: #005f73;
+        --accent: #0a9396;
+        --warning: #ee9b00;
+        --background: #fff9f4;
+        --surface: #ffffff;
+
+        /* Text */
+        --text-primary: #005f73;
+        --text-secondary: #555;
+        --text-muted: #777;
+
+        /* Borders */
+        --border: #ddd;
+        --border-light: #ececec;
+        --header-bg: #eef8f8;
+        --header-border: #d9ecec;
+
+        /* Shadows */
+        --shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+
+        /* Radius */
+        --radius-sm: 8px;
+        --radius-md: 12px;
+        --radius-lg: 18px;
+
+        /* Animation */
+        --transition: 0.2s ease;
+      }
+
+      body {
+        background: #fff9f4;
+        display: flex;
+        color: #005f73;
+      }
+      /* ==========================
+   MENU TOGGLE
+========================== */
+
+      #menu-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        width: 52px;
+        height: 52px;
+
+        padding: 0;
+
+        border: none;
+        border-radius: 10px;
+        background: transparent;
+        color: white;
+        cursor: pointer;
+        transition: 0.3s ease;
+      }
+
+      #menu-toggle:hover {
+        background: #0a9396;
+      }
+
+      #menu-toggle i {
+        font-size: 20px; /* same size as sidebar icons */
+        line-height: 1;
+        transition:
+          opacity 0.15s ease,
+          transform 0.3s ease;
+      }
+
+      .sidebar.collapsed #menu-toggle i {
+        transform: rotate(180deg);
+      }
+
+      .sidebar.collapsed a span {
+        display: none;
+      }
+
+      .sidebar.collapsed .logout span {
+        display: none;
+      }
+
+      .sidebar.collapsed .logout a {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      /* ==========================
+      SIDEBAR
+      ========================== */
+
+      .sidebar {
+        width: 250px;
+        height: 100vh;
+        background: #005f73;
+        color: white;
+        position: fixed;
+        left: 0;
+        top: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 30px 15px;
+        transition: all 0.3s ease;
+      }
+
+      .sidebar.collapsed {
+        width: 92px;
+        padding: 30px 20px;
+      }
+
+      .sidebar-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        margin-bottom: 20px;
+        transition: all 0.3s ease;
+      }
+
+      .sidebar.collapsed .sidebar-header {
+        justify-content: center;
+      }
+
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        transition: 0.3s;
+
+        overflow: hidden;
+        white-space: nowrap;
+
+        width: 170px;
+        opacity: 1;
+
+        transition:
+          width 0.3s ease,
+          opacity 0.25s ease;
+      }
+
+      .logo img {
+        width: 45px;
+        height: 45px;
+        border-radius: 6px;
+      }
+
+      .logo h2 {
+        font-size: 20px;
+        color: #ee9b00;
+        white-space: nowrap;
+      }
+
+      .sidebar.collapsed .logo {
+        width: 0;
+        opacity: 0;
+      }
+      .sidebar ul {
+        list-style: none;
+      }
+
+      .sidebar li {
+        margin: 10px 0;
+      }
+
+      .sidebar a {
+        display: flex;
+        align-items: center;
+
+        height: 52px;
+        padding: 0 14px;
+        gap: 14px;
+
+        border-radius: 10px;
+        text-decoration: none;
+        color: #fff;
+
+        transition:
+          background-color 0.25s ease,
+          color 0.25s ease;
+      }
+
+      .sidebar a i {
+        width: 24px;
+        min-width: 24px;
+        font-size: 20px;
+        text-align: center;
+        flex-shrink: 0;
+      }
+
+      .sidebar a span {
+        white-space: nowrap;
+        overflow: hidden;
+
+        max-width: 140px;
+        opacity: 1;
+
+        transition:
+          max-width 0.3s ease,
+          opacity 0.2s ease;
+      }
+
+      .sidebar.collapsed a {
+        justify-content: center;
+
+        width: 52px;
+        height: 52px;
+
+        padding: 0;
+        margin: 0 auto;
+        gap: 0;
+      }
+
+      .sidebar.collapsed a span {
+        max-width: 0;
+        opacity: 0;
+      }
+      .sidebar a:hover,
+      .sidebar .active {
+        background: #0a9396;
+      }
+
+      .logout a {
+        background: #ee9b00;
+        text-align: center;
+        font-weight: bold;
+      }
+
+      .logout a:hover {
+        background: #d98f00;
+      }
+
+      /* ==========================
+   MAIN CONTENT
+========================== */
+
+      .main {
+        margin-left: 250px;
+        width: calc(100% - 250px);
+        padding: 35px;
+        transition: all 0.3s ease;
+      }
+
+      .main.expanded {
+        margin-left: 92px;
+        width: calc(100% - 92px);
+      }
+
+      /* ==========================
+   HEADER
+========================== */
+
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 35px;
+      }
+
+      .header h1 {
+        font-size: 34px;
+      }
+
+      .header p {
+        color: #666;
+        margin-top: 5px;
+      }
+
+      .date {
+        background: white;
+        padding: 12px 18px;
+        border-radius: 12px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        font-weight: 600;
+      }
+
+      /* ==========================
+   QUICK ACTIONS
+========================== */
+
+      .quick-actions {
+        display: flex;
+        gap: 12px;
+        margin: 25px 0 30px;
+        flex-wrap: wrap;
+      }
+
+      .quick-btn {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 16px;
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        color: #005f73;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .quick-btn:hover {
+        border-color: #0a9396;
+        color: #0a9396;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+      }
+
+      .quick-btn span:first-child {
+        font-size: 16px;
+        font-weight: 700;
+      }
+
+      /* ==========================
+   TABLE TOOLBAR
+========================== */
+
+      .table-toolbar {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
+      }
+
+      /* Shared styling */
+
+      .table-toolbar input,
+      .table-toolbar select {
+        height: 44px;
+        padding: 0 14px;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        font-size: 15px;
+        background: #fff;
+        transition: border-color 0.2s ease;
+      }
+
+      .table-toolbar input:focus,
+      .table-toolbar select:focus {
+        border-color: #0a9396;
+        outline: none;
+      }
+
+      /* Search */
+
+      .search-box {
+        position: relative;
+        flex: 1 1 320px;
+        min-width: 280px;
+      }
+
+      .search-box i {
+        position: absolute;
+        left: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #888;
+        pointer-events: none;
+      }
+
+      .search-box input {
+        width: 100%;
+        padding-left: 40px;
+      }
+
+      /* ==========================
+   INPUT & SELECT WRAPPERS
+========================== */
+
+      .input-box,
+      .select-box {
+        position: relative;
+        display: flex;
+        align-items: center;
+      }
+
+      .input-box i {
+        position: absolute;
+        right: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #888;
+        pointer-events: none;
+        font-size: 16px;
+      }
+
+      .select-box i {
+        position: absolute;
+        right: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #888;
+        pointer-events: none;
+        font-size: 14px;
+      }
+
+      .input-box input {
+        width: 100%;
+        padding-right: 42px;
+      }
+
+      .select-box select {
+        width: 100%;
+        padding-right: 42px;
+
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+      }
+
+      .input-box input[type="date"]::-webkit-calendar-picker-indicator {
+        opacity: 0;
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        cursor: pointer;
+      }
+
+      /* Individual filter widths */
+
+      .filter-date {
+        flex: 0 0 310px;
+      }
+
+      .filter-view {
+        flex: 0 0 180px;
+      }
+
+      .filter-sort {
+        flex: 0 0 180px;
+      }
+
+      /* ==========================
+   WORK ACCOMPLISHMENTS TABLE
+========================== */
+
+      .table-card {
+        background: #fff;
+        border-radius: 18px;
+        padding: 25px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+      }
+
+      .project-table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      .project-table thead th {
+        padding: 16px 18px;
+        text-align: left;
+        font-size: 14px;
+        font-weight: 700;
+        color: #005f73;
+        background: #eef8f8;
+        border-bottom: 2px solid #d9ecec;
+      }
+
+      .project-table thead th:first-child {
+        border-top-left-radius: 12px;
+      }
+
+      .project-table thead th:last-child {
+        border-top-right-radius: 12px;
+      }
+
+      .project-table tbody tr {
+        transition: background 0.2s ease;
+      }
+
+      .project-table tbody tr:hover {
+        background: #f8fcfc;
+      }
+
+      .project-table tbody td {
+        padding: 18px;
+        font-size: 15px;
+        color: #555;
+        border-bottom: 1px solid #ececec;
+        vertical-align: top;
+      }
+
+      .project-table tbody td:first-child {
+        font-weight: 600;
+        color: #005f73;
+      }
+
+      .project-table tbody td:nth-child(2) {
+        font-weight: 600;
+      }
+
+      .project-table tbody td:nth-child(3) {
+        white-space: nowrap;
+        color: #0a9396;
+        font-weight: 700;
+      }
+
+      .project-table tbody td:last-child {
+        white-space: nowrap;
+        color: #777;
+      }
+
+      .project-table tbody tr:last-child td {
+        border-bottom: none;
+      }
+
+      .table-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+
+      .table-header h2 {
+        font-size: 24px;
+        font-weight: 700;
+        color: #005f73;
+        margin: 0;
+      }
+
+      .table-year {
+        font-size: 30px;
+        font-weight: 700;
+        color: #005f73;
+        opacity: 0.25;
+        letter-spacing: 0.05em;
+      }
+
+      .project-table td:last-child,
+      .project-table th:last-child {
+        text-align: center;
+        white-space: nowrap;
+      }
+
+      .project-table td:last-child i {
+        font-size: 18px;
+        cursor: pointer;
+        margin: 0 6px;
+        color: var(--primary);
+        transition: color 0.2s ease;
+      }
+
+      .project-table td:last-child .bi-pencil-square:hover {
+        color: var(--accent);
+      }
+
+      .project-table td:last-child .bi-trash:hover {
+        color: #dc3545;
+      }
+
+      /* ==========================
+   RESPONSIVE TABLE
+========================== */
+
+      @media (max-width: 900px) {
+        .table-card {
+          overflow-x: auto;
+        }
+
+        .project-table {
+          min-width: 800px;
+        }
+      }
+
+      /* ==========================
+   RESPONSIVE
+========================== */
+
+      @media (max-width: 900px) {
+        .sidebar {
+          width: 210px;
+        }
+
+        .main {
+          margin-left: 210px;
+          width: calc(100% - 210px);
+        }
+      }
+
+      @media (max-width: 768px) {
+        body {
+          flex-direction: column;
+        }
+
+        .sidebar {
+          position: relative;
+          width: 100%;
+          height: auto;
+        }
+
+        .main {
+          margin-left: 0;
+          width: 100%;
+        }
+
+        .header {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 15px;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- SIDEBAR -->
+
+    <div class="sidebar" id="sidebar">
+      <!-- Top Section -->
+      <div>
+        <div class="sidebar-header">
+          <div class="logo" id="logo">
+            <img src="images/InternTrack.png" alt="Logo" />
+            <h2>InternTrack</h2>
+          </div>
+
+          <button id="menu-toggle">
+            <i class="bi bi-chevron-double-left" id="menu-icon"></i>
+          </button>
+        </div>
+
+        <ul>
+          <li>
+            <a href="dashboard.html">
+              <i class="bi bi-ui-checks-grid"></i>
+              <span>Dashboard</span>
+            </a>
+          </li>
+
+          <li>
+            <a href="projects.html" class="active">
+              <i class="bi bi-folder2"></i>
+              <span>Projects</span>
+            </a>
+          </li>
+
+          <li>
+            <a href="calendar.html">
+              <i class="bi bi-calendar-event"></i>
+              <span>Calendar</span>
+            </a>
+          </li>
+
+          <li>
+            <a href="reports.html">
+              <i class="bi bi-bar-chart-line"></i>
+              <span>Reports</span>
+            </a>
+          </li>
+
+          <li>
+            <a href="profile.html">
+              <i class="bi bi-person-circle"></i>
+              <span>Profile</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Bottom Section -->
+      <div class="logout">
+        <a href="index.html">Log Out</a>
+      </div>
+    </div>
+
+    <!-- MAIN -->
+
+    <div class="main" id="main">
+      <!-- HEADER -->
+
+      <div class="header">
+        <div>
+          <h1>My Projects</h1>
+
+          <p>Manage internship projects and work sessions.</p>
+        </div>
+
+        <div class="date">📅 March 11, 2026</div>
+      </div>
+
+      <!-- QUICK ACTIONS -->
+
+      <div class="quick-actions">
+        <button class="quick-btn">
+          <span>+</span>
+          <span>New Project</span>
+        </button>
+
+        <button class="quick-btn">
+          <span>▶</span>
+          <span>Start Timer</span>
+        </button>
+      </div>
+
+      <!-- TABLE -->
+
+      <div class="table-card">
+        <div class="table-header">
+          <h2>Work Accomplishments</h2>
+          <span class="table-year">2026</span>
+        </div>
+
+        <div class="table-toolbar">
+          <div class="search-box">
+            <i class="bi bi-search"></i>
+            <input type="text" placeholder="Search logs" />
+          </div>
+
+          <div class="input-box filter-date">
+            <input id="filter-date" type="text" placeholder="Select Date" />
+            <i class="bi bi-calendar"></i>
+          </div>
+
+          <div class="select-box filter-view">
+            <select>
+              <option>Weekly View</option>
+              <option>Monthly View</option>
+            </select>
+            <i class="bi bi-chevron-down"></i>
+          </div>
+
+          <div class="select-box filter-sort">
+            <select>
+              <option>Sort by Latest</option>
+              <option>Sort by Oldest</option>
+              <option>Highest Hours</option>
+              <option>Lowest Hours</option>
+            </select>
+            <i class="bi bi-chevron-down"></i>
+          </div>
+        </div>
+
+        <table class="project-table">
+          <thead>
+            <tr>
+              <th>Project</th>
+              <th>Activity</th>
+              <th>Hours</th>
+              <th>Date and Time</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr>
+              <td>Library Management System</td>
+              <td>Conducted final system testing.</td>
+              <td>8</td>
+              <td>March 10, 2026 • 8:00 AM – 5:00 PM</td>
+              <td>
+                <i class="bi bi-pencil-square"></i>
+                <i class="bi bi-trash"></i>
+              </td>
+            </tr>
+
+            <tr>
+              <td>Library Management System</td>
+              <td>Updated library system documentation.</td>
+              <td>8</td>
+              <td>March 9, 2026 • 8:00 AM – 5:00 PM</td>
+              <td>
+                <i class="bi bi-pencil-square"></i>
+                <i class="bi bi-trash"></i>
+              </td>
+            </tr>
+
+            <tr>
+              <td>Library Management System</td>
+              <td>Verified overdue book reports.</td>
+              <td>8</td>
+              <td>March 6, 2026 • 8:00 AM – 5:00 PM</td>
+              <td>
+                <i class="bi bi-pencil-square"></i>
+                <i class="bi bi-trash"></i>
+              </td>
+            </tr>
+
+            <tr>
+              <td>Library Management System</td>
+              <td>Tested return transaction process.</td>
+              <td>8</td>
+              <td>March 5, 2026 • 8:00 AM – 5:00 PM</td>
+              <td>
+                <i class="bi bi-pencil-square"></i>
+                <i class="bi bi-trash"></i>
+              </td>
+            </tr>
+
+            <tr>
+              <td>Library Management System</td>
+              <td>Improved borrowing transaction form.</td>
+              <td>8</td>
+              <td>March 4, 2026 • 8:00 AM – 5:00 PM</td>
+              <td>
+                <i class="bi bi-pencil-square"></i>
+                <i class="bi bi-trash"></i>
+              </td>
+            </tr>
+
+            <tr>
+              <td>Library Management System</td>
+              <td>Updated book inventory records.</td>
+              <td>8</td>
+              <td>March 3, 2026 • 8:00 AM – 5:00 PM</td>
+              <td>
+                <i class="bi bi-pencil-square"></i>
+                <i class="bi bi-trash"></i>
+              </td>
+            </tr>
+
+            <tr>
+              <td>Payroll System</td>
+              <td>Finalized payroll documentation.</td>
+              <td>8</td>
+              <td>March 2, 2026 • 8:00 AM – 5:00 PM</td>
+              <td>
+                <i class="bi bi-pencil-square"></i>
+                <i class="bi bi-trash"></i>
+              </td>
+            </tr>
+
+            <tr>
+              <td>Payroll System</td>
+              <td>Assisted in payslip generation testing.</td>
+              <td>8</td>
+              <td>February 27, 2026 • 8:00 AM – 5:00 PM</td>
+              <td>
+                <i class="bi bi-pencil-square"></i>
+                <i class="bi bi-trash"></i>
+              </td>
+            </tr>
+
+            <tr>
+              <td>Payroll System</td>
+              <td>Corrected payroll validation issues.</td>
+              <td>8</td>
+              <td>February 26, 2026 • 8:00 AM – 5:00 PM</td>
+              <td>
+                <i class="bi bi-pencil-square"></i>
+                <i class="bi bi-trash"></i>
+              </td>
+            </tr>
+
+            <tr>
+              <td>Payroll System</td>
+              <td>Verified deduction computations.</td>
+              <td>8</td>
+              <td>February 25, 2026 • 8:00 AM – 5:00 PM</td>
+              <td>
+                <i class="bi bi-pencil-square"></i>
+                <i class="bi bi-trash"></i>
+              </td>
+            </tr>
+
+            <tr>
+              <td>Payroll System</td>
+              <td>Updated payroll report template.</td>
+              <td>8</td>
+              <td>February 24, 2026 • 8:00 AM – 5:00 PM</td>
+              <td>
+                <i class="bi bi-pencil-square"></i>
+                <i class="bi bi-trash"></i>
+              </td>
+            </tr>
+
+            <tr>
+              <td>Payroll System</td>
+              <td>Tested payroll calculations.</td>
+              <td>8</td>
+              <td>February 23, 2026 • 8:00 AM – 5:00 PM</td>
+              <td>
+                <i class="bi bi-pencil-square"></i>
+                <i class="bi bi-trash"></i>
+              </td>
+            </tr>
+
+            <tr>
+              <td>Payroll System</td>
+              <td>Reviewed payroll computation logic.</td>
+              <td>8</td>
+              <td>February 20, 2026 • 8:00 AM – 5:00 PM</td>
+              <td>
+                <i class="bi bi-pencil-square"></i>
+                <i class="bi bi-trash"></i>
+              </td>
+            </tr>
+
+            <tr>
+              <td>HRIS</td>
+              <td>Conducted final module validation.</td>
+              <td>8</td>
+              <td>February 19, 2026 • 8:00 AM – 5:00 PM</td>
+              <td>
+                <i class="bi bi-pencil-square"></i>
+                <i class="bi bi-trash"></i>
+              </td>
+            </tr>
+
+            <tr>
+              <td>HRIS</td>
+              <td>Updated HR documentation.</td>
+              <td>8</td>
+              <td>February 18, 2026 • 8:00 AM – 5:00 PM</td>
+              <td>
+                <i class="bi bi-pencil-square"></i>
+                <i class="bi bi-trash"></i>
+              </td>
+            </tr>
+
+            <tr>
+              <td>HRIS</td>
+              <td>Assisted in report generation testing.</td>
+              <td>8</td>
+              <td>February 17, 2026 • 8:00 AM – 5:00 PM</td>
+              <td>
+                <i class="bi bi-pencil-square"></i>
+                <i class="bi bi-trash"></i>
+              </td>
+            </tr>
+
+            <tr>
+              <td>HRIS</td>
+              <td>Verified attendance records.</td>
+              <td>8</td>
+              <td>February 16, 2026 • 8:00 AM – 5:00 PM</td>
+              <td>
+                <i class="bi bi-pencil-square"></i>
+                <i class="bi bi-trash"></i>
+              </td>
+            </tr>
+
+            <tr>
+              <td>HRIS</td>
+              <td>Fixed employee search function.</td>
+              <td>8</td>
+              <td>February 13, 2026 • 8:00 AM – 5:00 PM</td>
+              <td>
+                <i class="bi bi-pencil-square"></i>
+                <i class="bi bi-trash"></i>
+              </td>
+            </tr>
+
+            <tr>
+              <td>HRIS</td>
+              <td>Improved attendance dashboard.</td>
+              <td>8</td>
+              <td>February 12, 2026 • 8:00 AM – 5:00 PM</td>
+              <td>
+                <i class="bi bi-pencil-square"></i>
+                <i class="bi bi-trash"></i>
+              </td>
+            </tr>
+
+            <tr>
+              <td>HRIS</td>
+              <td>Tested leave request workflow.</td>
+              <td>8</td>
+              <td>February 11, 2026 • 8:00 AM – 5:00 PM</td>
+              <td>
+                <i class="bi bi-pencil-square"></i>
+                <i class="bi bi-trash"></i>
+              </td>
+            </tr>
+
+            <tr>
+              <td>HRIS</td>
+              <td>Organized employee records.</td>
+              <td>8</td>
+              <td>February 10, 2026 • 8:00 AM – 5:00 PM</td>
+              <td>
+                <i class="bi bi-pencil-square"></i>
+                <i class="bi bi-trash"></i>
+              </td>
+            </tr>
+
+            <tr>
+              <td>HRIS</td>
+              <td>Updated employee profile module.</td>
+              <td>8</td>
+              <td>February 9, 2026 • 8:00 AM – 5:00 PM</td>
+              <td>
+                <i class="bi bi-pencil-square"></i>
+                <i class="bi bi-trash"></i>
+              </td>
+            </tr>
+
+            <tr>
+              <td>POS System</td>
+              <td>Performed regression testing.</td>
+              <td>8</td>
+              <td>February 6, 2026 • 8:00 AM – 5:00 PM</td>
+              <td>
+                <i class="bi bi-pencil-square"></i>
+                <i class="bi bi-trash"></i>
+              </td>
+            </tr>
+
+            <tr>
+              <td>POS System</td>
+              <td>Fixed transaction validation issues.</td>
+              <td>8</td>
+              <td>February 5, 2026 • 8:00 AM – 5:00 PM</td>
+              <td>
+                <i class="bi bi-pencil-square"></i>
+                <i class="bi bi-trash"></i>
+              </td>
+            </tr>
+
+            <tr>
+              <td>POS System</td>
+              <td>Improved barcode scanning workflow.</td>
+              <td>8</td>
+              <td>February 4, 2026 • 8:00 AM – 5:00 PM</td>
+              <td>
+                <i class="bi bi-pencil-square"></i>
+                <i class="bi bi-trash"></i>
+              </td>
+            </tr>
+
+            <tr>
+              <td>POS System</td>
+              <td>Verified daily sales reports.</td>
+              <td>8</td>
+              <td>February 3, 2026 • 8:00 AM – 5:00 PM</td>
+              <td>
+                <i class="bi bi-pencil-square"></i>
+                <i class="bi bi-trash"></i>
+              </td>
+            </tr>
+
+            <tr>
+              <td>POS System</td>
+              <td>Assisted in payment module testing.</td>
+              <td>8</td>
+              <td>February 2, 2026 • 8:00 AM – 5:00 PM</td>
+              <td>
+                <i class="bi bi-pencil-square"></i>
+                <i class="bi bi-trash"></i>
+              </td>
+            </tr>
+
+            <tr>
+              <td>POS System</td>
+              <td>Updated customer transaction records.</td>
+              <td>8</td>
+              <td>January 28, 2026 • 8:00 AM – 5:00 PM</td>
+              <td>
+                <i class="bi bi-pencil-square"></i>
+                <i class="bi bi-trash"></i>
+              </td>
+            </tr>
+
+            <tr>
+              <td>POS System</td>
+              <td>Corrected receipt formatting.</td>
+              <td>8</td>
+              <td>January 27, 2026 • 8:00 AM – 5:00 PM</td>
+              <td>
+                <i class="bi bi-pencil-square"></i>
+                <i class="bi bi-trash"></i>
+              </td>
+            </tr>
+
+            <tr>
+              <td>POS System</td>
+              <td>Tested sales transaction process.</td>
+              <td>8</td>
+              <td>January 26, 2026 • 8:00 AM – 5:00 PM</td>
+              <td>
+                <i class="bi bi-pencil-square"></i>
+                <i class="bi bi-trash"></i>
+              </td>
+            </tr>
+
+            <tr>
+              <td>POS System</td>
+              <td>Improved cashier interface layout.</td>
+              <td>8</td>
+              <td>January 23, 2026 • 8:00 AM – 5:00 PM</td>
+              <td>
+                <i class="bi bi-pencil-square"></i>
+                <i class="bi bi-trash"></i>
+              </td>
+            </tr>
+
+            <tr>
+              <td>POS System</td>
+              <td>Enhanced product lookup feature.</td>
+              <td>8</td>
+              <td>January 22, 2026 • 8:00 AM – 5:00 PM</td>
+              <td>
+                <i class="bi bi-pencil-square"></i>
+                <i class="bi bi-trash"></i>
+              </td>
+            </tr>
+            <tr>
+              <td>Inventory Management</td>
+              <td>Finalized inventory feature revisions.</td>
+              <td>8</td>
+              <td>January 21, 2026 • 8:00 AM – 5:00 PM</td>
+              <td>
+                <i class="bi bi-pencil-square"></i>
+                <i class="bi bi-trash"></i>
+              </td>
+            </tr>
+
+            <tr>
+              <td>Inventory Management</td>
+              <td>Reviewed inventory module improvements.</td>
+              <td>8</td>
+              <td>January 20, 2026 • 8:00 AM – 5:00 PM</td>
+              <td>
+                <i class="bi bi-pencil-square"></i>
+                <i class="bi bi-trash"></i>
+              </td>
+            </tr>
+
+            <tr>
+              <td>Inventory Management</td>
+              <td>Assisted in user acceptance testing.</td>
+              <td>8</td>
+              <td>January 19, 2026 • 8:00 AM – 5:00 PM</td>
+              <td>
+                <i class="bi bi-pencil-square"></i>
+                <i class="bi bi-trash"></i>
+              </td>
+            </tr>
+
+            <tr>
+              <td>Inventory Management</td>
+              <td>Documented inventory workflow.</td>
+              <td>8</td>
+              <td>January 16, 2026 • 8:00 AM – 5:00 PM</td>
+              <td>
+                <i class="bi bi-pencil-square"></i>
+                <i class="bi bi-trash"></i>
+              </td>
+            </tr>
+
+            <tr>
+              <td>Inventory Management</td>
+              <td>Performed system debugging.</td>
+              <td>8</td>
+              <td>January 15, 2026 • 8:00 AM – 5:00 PM</td>
+              <td>
+                <i class="bi bi-pencil-square"></i>
+                <i class="bi bi-trash"></i>
+              </td>
+            </tr>
+
+            <tr>
+              <td>Inventory Management</td>
+              <td>Validated inventory reports.</td>
+              <td>8</td>
+              <td>January 14, 2026 • 8:00 AM – 5:00 PM</td>
+              <td>
+                <i class="bi bi-pencil-square"></i>
+                <i class="bi bi-trash"></i>
+              </td>
+            </tr>
+
+            <tr>
+              <td>Inventory Management</td>
+              <td>Added item category management.</td>
+              <td>8</td>
+              <td>January 13, 2026 • 8:00 AM – 5:00 PM</td>
+              <td>
+                <i class="bi bi-pencil-square"></i>
+                <i class="bi bi-trash"></i>
+              </td>
+            </tr>
+
+            <tr>
+              <td>Inventory Management</td>
+              <td>Improved inventory search function.</td>
+              <td>8</td>
+              <td>January 12, 2026 • 8:00 AM – 5:00 PM</td>
+              <td>
+                <i class="bi bi-pencil-square"></i>
+                <i class="bi bi-trash"></i>
+              </td>
+            </tr>
+
+            <tr>
+              <td>Inventory Management</td>
+              <td>Tested inventory transaction forms.</td>
+              <td>8</td>
+              <td>January 9, 2026 • 8:00 AM – 5:00 PM</td>
+              <td>
+                <i class="bi bi-pencil-square"></i>
+                <i class="bi bi-trash"></i>
+              </td>
+            </tr>
+
+            <tr>
+              <td>Inventory Management</td>
+              <td>Designed inventory report layout.</td>
+              <td>8</td>
+              <td>January 8, 2026 • 8:00 AM – 5:00 PM</td>
+              <td>
+                <i class="bi bi-pencil-square"></i>
+                <i class="bi bi-trash"></i>
+              </td>
+            </tr>
+
+            <tr>
+              <td>Inventory Management</td>
+              <td>Fixed stock quantity validation.</td>
+              <td>8</td>
+              <td>January 7, 2026 • 8:00 AM – 5:00 PM</td>
+              <td>
+                <i class="bi bi-pencil-square"></i>
+                <i class="bi bi-trash"></i>
+              </td>
+            </tr>
+
+            <tr>
+              <td>Inventory Management</td>
+              <td>Updated product database records.</td>
+              <td>8</td>
+              <td>January 6, 2026 • 8:00 AM – 5:00 PM</td>
+              <td>
+                <i class="bi bi-pencil-square"></i>
+                <i class="bi bi-trash"></i>
+              </td>
+            </tr>
+
+            <tr>
+              <td>Inventory Management</td>
+              <td>Assisted in inventory module development.</td>
+              <td>8</td>
+              <td>January 5, 2026 • 8:00 AM – 5:00 PM</td>
+              <td>
+                <i class="bi bi-pencil-square"></i>
+                <i class="bi bi-trash"></i>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <script>
+      const toggleBtn = document.getElementById("menu-toggle");
+      const menuIcon = document.getElementById("menu-icon");
+      const sidebar = document.getElementById("sidebar");
+      const main = document.getElementById("main");
+
+      const isCollapsed = localStorage.getItem("sidebar") === "collapsed";
+
+      if (isCollapsed) {
+        sidebar.classList.add("collapsed");
+        main.classList.add("expanded");
+        menuIcon.classList.replace("bi-chevron-double-left", "bi-list");
+      } else {
+        // FORCE CLEAN DEFAULT STATE
+        sidebar.classList.remove("collapsed");
+        main.classList.remove("expanded");
+        menuIcon.classList.replace("bi-list", "bi-chevron-double-left");
+      }
+
+      toggleBtn.addEventListener("click", () => {
+        menuIcon.style.opacity = "0";
+
+        setTimeout(() => {
+          const isNowCollapsed = sidebar.classList.toggle("collapsed");
+          main.classList.toggle("expanded");
+
+          // SAVE STATE
+          localStorage.setItem(
+            "sidebar",
+            isNowCollapsed ? "collapsed" : "expanded",
+          );
+
+          // ICON SWITCH
+          if (isNowCollapsed) {
+            menuIcon.classList.replace("bi-chevron-double-left", "bi-list");
+          } else {
+            menuIcon.classList.replace("bi-list", "bi-chevron-double-left");
+          }
+
+          menuIcon.style.opacity = "1";
+        }, 150);
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script>
+      flatpickr("#filter-date", {
+        dateFormat: "M j, Y",
+        allowInput: true,
+      });
+    </script>
+  </body>
+</html>
