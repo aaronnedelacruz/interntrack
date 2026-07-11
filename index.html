@@ -94,54 +94,80 @@
         background: #d98f00;
       }
 
-      /* Hero */
+      /* ==========================
+   HERO SECTION
+========================== */
 
       .hero {
         min-height: 90vh;
+
         display: flex;
+
         justify-content: space-between;
+
         align-items: center;
+
         padding: 70px 8%;
-        gap: 60px;
-        flex-wrap: wrap;
+
+        gap: 70px;
       }
+
+      /* LEFT SIDE */
 
       .hero-text {
         flex: 1;
-        min-width: 320px;
+
+        max-width: 650px;
       }
 
       .hero-text h1 {
         font-size: 58px;
+
         line-height: 1.2;
+
         margin-bottom: 25px;
+
+        color: #005f73;
       }
 
       .hero-text p {
         font-size: 18px;
+
         line-height: 1.8;
+
         color: #555;
+
         max-width: 620px;
+
         margin-bottom: 35px;
       }
 
+      /* BUTTONS */
+
       .hero-buttons {
         display: flex;
+
         gap: 18px;
+
         flex-wrap: wrap;
       }
 
       .primary-btn,
       .secondary-btn {
         padding: 16px 34px;
+
         border-radius: 10px;
+
         text-decoration: none;
+
         font-weight: 600;
-        transition: 0.3s;
+
+        transition: 0.3s ease;
       }
 
       .primary-btn {
         background: #ee9b00;
+
         color: white;
       }
 
@@ -151,60 +177,150 @@
 
       .secondary-btn {
         border: 2px solid #005f73;
+
         color: #005f73;
       }
 
       .secondary-btn:hover {
         background: #005f73;
+
         color: white;
       }
 
-      /* Hero Card */
+      /* ==========================
+   HERO IMAGE
+========================== */
 
-      .hero-card {
-        width: 360px;
-        background: white;
-        border-radius: 20px;
-        padding: 35px;
-        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
-      }
+      .hero-image {
+        flex: 1;
 
-      .hero-card h2 {
-        margin-bottom: 25px;
-      }
-
-      .stat {
         display: flex;
-        justify-content: space-between;
-        margin: 18px 0;
-        padding-bottom: 12px;
-        border-bottom: 1px solid #eee;
+
+        justify-content: center;
+
+        align-items: center;
+        position: relative;
       }
 
-      .progress-bar {
+      .hero-image::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 40px;
+        background: linear-gradient(to bottom, rgba(255, 249, 244, 0), #fff9f4);
+      }
+
+      .hero-image img {
         width: 100%;
-        height: 18px;
-        background: #ddd;
-        border-radius: 20px;
+
+        max-width: 550px;
+
+        height: auto;
+
+        object-fit: contain;
+      }
+
+      /* ==========================
+   RESPONSIVE HERO
+========================== */
+
+      @media (max-width: 1000px) {
+        .hero {
+          flex-direction: column;
+
+          text-align: center;
+
+          padding: 60px 6%;
+        }
+
+        .hero-text {
+          max-width: 700px;
+        }
+
+        .hero-buttons {
+          justify-content: center;
+        }
+
+        .hero-image img {
+          max-width: 420px;
+        }
+      }
+
+      @media (max-width: 600px) {
+        .hero-text h1 {
+          font-size: 40px;
+        }
+
+        .hero-text p {
+          font-size: 16px;
+        }
+
+        .hero-image img {
+          max-width: 320px;
+        }
+      }
+      /*PREVIEW CAROUSEL SECTION*/
+      .carousel {
+        width: 100%;
+        margin: 0 auto;
         overflow: hidden;
-        margin: 25px 0;
+        cursor: grab;
+        user-select: none;
+        touch-action: pan-y;
       }
 
-      .progress {
-        width: 72%;
-        height: 100%;
-        background: #0a9396;
+      .carousel.dragging {
+        cursor: grabbing;
       }
 
-      .progress-text {
+      .track {
+        display: flex;
+        gap: 20px;
+        will-change: transform;
+      }
+
+      /* 3 cards visible at a time, edge to edge, minus the two gaps between them */
+      .track img {
+        flex: 0 0 calc((100% - 40px) / 3);
+        height: 260px;
+        object-fit: cover;
+        border-radius: 16px;
+        pointer-events: none;
+      }
+
+      @media (max-width: 700px) {
+        /* still edge-to-edge, just fewer full cards fit visually — track math
+     stays generic so it keeps working */
+        .track img {
+          flex: 0 0 calc((100% - 40px) / 3);
+          height: 42vh;
+          min-height: 220px;
+        }
+      }
+
+      /* ==========================
+   PREVIEW SECTION
+========================== */
+
+      .preview {
+        background: #005f73;
+        padding-top: 70px;
+        padding-bottom: 100px;
+      }
+
+      .preview h2 {
         text-align: center;
-        font-size: 18px;
-        font-weight: bold;
-        color: #005f73;
+        font-size: 40px;
+        color: #ffffff;
+        margin-bottom: 60px;
       }
+
+      /*FEATURES SECTION*/
 
       .features {
-        background: #005f73;
+        background: #fff9f4;
         color: white;
         padding: 100px 8%;
       }
@@ -213,6 +329,7 @@
         text-align: center;
         font-size: 40px;
         margin-bottom: 60px;
+        color: #005f73;
       }
 
       .feature-grid {
@@ -236,6 +353,340 @@
 
       .feature-card p {
         line-height: 1.7;
+      }
+
+      /* FAQ SECTION */
+
+      .faq {
+        padding: 80px 8%;
+        background: #0a9396;
+      }
+
+      .faq h2 {
+        text-align: center;
+        font-size: 36px;
+        margin-bottom: 40px;
+        color: #ffffff;
+      }
+
+      .faq-container {
+        max-width: 900px;
+        margin: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      .faq-item {
+        background: white;
+        padding: 25px;
+        border-radius: 12px;
+        border: 1px solid #e5e7eb;
+      }
+
+      .faq-item h3 {
+        font-size: 20px;
+        margin-bottom: 10px;
+        color: #005f73;
+      }
+
+      .faq-item p {
+        font-size: 16px;
+        line-height: 1.6;
+        color: #64748b;
+        margin: 0;
+      }
+
+      /* ABOUT SECTION */
+
+      .about {
+        padding: 80px 8%;
+        background: #ffffff;
+      }
+
+      .about > h2 {
+        text-align: center;
+        font-size: 36px;
+        color: #005f73;
+        margin-bottom: 40px;
+      }
+
+      .about-content {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 25px;
+        max-width: 1100px;
+        margin: auto;
+      }
+
+      .about-box {
+        background: #f8fafc;
+        padding: 30px;
+        border-radius: 15px;
+        border: 1px solid #e5e7eb;
+      }
+
+      .about-box h3 {
+        color: #005f73;
+        font-size: 22px;
+        margin-bottom: 15px;
+      }
+
+      .about-box p {
+        color: #64748b;
+        font-size: 16px;
+        line-height: 1.7;
+        margin-bottom: 15px;
+      }
+
+      .about-box p:last-child {
+        margin-bottom: 0;
+      }
+
+      /* =========================
+   CONTACT SECTION
+========================= */
+
+      .contact-section {
+        background: #fff9f4;
+        padding: 100px 8%;
+      }
+
+      .contact-container {
+        max-width: 1200px;
+        margin: auto;
+      }
+
+      .contact-header {
+        text-align: center;
+        margin-bottom: 60px;
+      }
+
+      .contact-header h2 {
+        font-size: 42px;
+        color: #005f73;
+        margin-bottom: 15px;
+      }
+
+      .contact-header p {
+        color: #555;
+        font-size: 18px;
+      }
+
+      .contact-content {
+        display: grid;
+        grid-template-columns: 0.9fr 1.1fr;
+        gap: 50px;
+      }
+
+      /* Contact Information */
+
+      .contact-info {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      .contact-card {
+        background: white;
+        padding: 25px;
+        border-radius: 16px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+      }
+
+      .contact-card h3 {
+        color: #0a9396;
+        margin-bottom: 8px;
+      }
+
+      .contact-card p {
+        color: #555;
+        line-height: 1.6;
+      }
+
+      /* Contact Form */
+
+      .contact-form {
+        background: white;
+        padding: 35px;
+        border-radius: 20px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+      }
+
+      .contact-form h3 {
+        color: #005f73;
+        font-size: 25px;
+        margin-bottom: 25px;
+      }
+
+      .form-group {
+        margin-bottom: 18px;
+      }
+
+      .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #333;
+      }
+
+      .form-group input,
+      .form-group textarea {
+        width: 100%;
+        padding: 14px 16px;
+
+        border: 1px solid #ddd;
+        border-radius: 10px;
+
+        font-size: 15px;
+        outline: none;
+      }
+
+      .form-group input:focus,
+      .form-group textarea:focus {
+        border-color: #0a9396;
+      }
+
+      .contact-form button {
+        width: 100%;
+
+        background: #005f73;
+        color: white;
+
+        border: none;
+        padding: 15px;
+
+        border-radius: 10px;
+
+        font-size: 16px;
+        font-weight: 600;
+
+        cursor: pointer;
+
+        transition: 0.3s;
+      }
+
+      .contact-form button:hover {
+        background: #0a9396;
+      }
+
+      /* =========================
+   FOOTER
+========================= */
+
+      .footer {
+        background: #005f73;
+        color: white;
+
+        padding: 70px 8% 25px;
+      }
+
+      .footer-container {
+        max-width: 1200px;
+        margin: auto;
+
+        display: grid;
+
+        grid-template-columns: 1.5fr 1fr 1fr 1fr;
+
+        gap: 40px;
+      }
+
+      .footer-logo {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+
+        font-size: 25px;
+        font-weight: 700;
+
+        margin-bottom: 20px;
+      }
+
+      .logo-icon {
+        width: 45px;
+        height: 45px;
+
+        background: #ee9b00;
+
+        color: white;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        border-radius: 12px;
+
+        font-weight: bold;
+      }
+
+      .footer-brand p {
+        color: #d8eeee;
+
+        line-height: 1.7;
+
+        max-width: 280px;
+      }
+
+      .footer-column {
+        display: flex;
+        flex-direction: column;
+
+        gap: 12px;
+      }
+
+      .footer-column h3 {
+        margin-bottom: 10px;
+
+        color: #ee9b00;
+      }
+
+      .footer-column a {
+        color: #e7f7f7;
+
+        text-decoration: none;
+
+        transition: 0.3s;
+      }
+
+      .footer-column a:hover {
+        color: #ee9b00;
+      }
+
+      .footer-bottom {
+        border-top: 1px solid rgba(255, 255, 255, 0.2);
+
+        margin-top: 50px;
+
+        padding-top: 25px;
+
+        text-align: center;
+
+        color: #d8eeee;
+
+        line-height: 1.8;
+      }
+
+      /* Responsive */
+
+      @media (max-width: 900px) {
+        .contact-content {
+          grid-template-columns: 1fr;
+        }
+
+        .footer-container {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+
+      @media (max-width: 600px) {
+        .footer-container {
+          grid-template-columns: 1fr;
+        }
+
+        .contact-header h2 {
+          font-size: 32px;
+        }
       }
 
       /* Responsive */
@@ -275,7 +726,6 @@
       </div>
 
       <ul>
-        <li><a href="#">Home</a></li>
         <li><a href="#">Features</a></li>
         <li><a href="#">How It Works</a></li>
         <li><a href="#">FAQs</a></li>
@@ -299,34 +749,31 @@
         </p>
 
         <div class="hero-buttons">
-          <a href="#" class="primary-btn">Start Tracking</a>
+          <a href="#" class="primary-btn">Get Started</a>
           <a href="#" class="secondary-btn">Learn More</a>
         </div>
       </div>
 
-      <div class="hero-card">
-        <h2>Your Internship Progress</h2>
+      <div class="hero-image">
+        <img
+          src="images/landing_page_stockimg.png"
+          alt="Internship Tracking Illustration"
+        />
+      </div>
+    </section>
 
-        <div class="stat">
-          <span>Completed Hours</span>
-          <strong>360 hrs</strong>
+    <section class="preview">
+      <h2>Preview</h2>
+
+      <div class="carousel" id="carousel">
+        <div class="track" id="track">
+          <img src="images/dashboard.png" draggable="false" />
+          <img src="images/projects.png" draggable="false" />
+          <img src="images/calendar.png" draggable="false" />
+          <img src="images/reports.png" draggable="false" />
+          <img src="images/charts.png" draggable="false" />
+          <img src="images/week-hour_plan.png" draggable="false" />
         </div>
-
-        <div class="stat">
-          <span>Remaining Hours</span>
-          <strong>140 hrs</strong>
-        </div>
-
-        <div class="stat">
-          <span>Attendance</span>
-          <strong>96%</strong>
-        </div>
-
-        <div class="progress-bar">
-          <div class="progress"></div>
-        </div>
-
-        <div class="progress-text">72% Completed</div>
       </div>
     </section>
 
@@ -335,20 +782,466 @@
 
       <div class="feature-grid">
         <div class="feature-card">
-          <h3>Track Hours</h3>
-          <p>Automatically monitor your completed and remaining OJT hours.</p>
+          <h3>Attendance & Project Tracking</h3>
+          <p>
+            Record internship hours, manage attendance, organize projects, and
+            track completed activities with ease.
+          </p>
         </div>
 
         <div class="feature-card">
-          <h3>Attendance</h3>
-          <p>Clock in, clock out, and manage daily attendance records.</p>
+          <h3>Progress Monitoring</h3>
+          <p>
+            Monitor completed and remaining hours, view schedules, and stay
+            updated with your internship progress.
+          </p>
         </div>
 
         <div class="feature-card">
-          <h3>Reports</h3>
-          <p>Generate weekly and monthly internship reports.</p>
+          <h3>Reports & Secure Records</h3>
+          <p>
+            Generate performance reports, analyze internship data, and securely
+            access your records anytime.
+          </p>
         </div>
       </div>
     </section>
+
+    <section class="faq">
+      <h2>Frequently Asked Questions</h2>
+
+      <div class="faq-container">
+        <div class="faq-item">
+          <h3>What is InternTrack?</h3>
+          <p>
+            InternTrack is a web-based internship management platform designed
+            to help students monitor attendance, track internship hours, manage
+            projects, and generate reports.
+          </p>
+        </div>
+
+        <div class="faq-item">
+          <h3>Can I edit my attendance records?</h3>
+          <p>
+            Yes. You can update or delete previously submitted attendance logs
+            whenever corrections are needed.
+          </p>
+        </div>
+
+        <div class="faq-item">
+          <h3>Does InternTrack automatically calculate my remaining hours?</h3>
+          <p>
+            Yes. The system automatically updates your completed and remaining
+            internship hours after every logged session.
+          </p>
+        </div>
+
+        <div class="faq-item">
+          <h3>Can I track multiple internship projects?</h3>
+          <p>
+            Absolutely. You can organize your work into multiple projects while
+            monitoring the hours spent on each one.
+          </p>
+        </div>
+
+        <div class="faq-item">
+          <h3>Can I export my reports?</h3>
+          <p>
+            Yes. InternTrack allows you to generate and export professional
+            internship reports for documentation and submission.
+          </p>
+        </div>
+
+        <div class="faq-item">
+          <h3>Is my data secure?</h3>
+          <p>
+            Your internship records are securely stored to help ensure your
+            information remains safe and accessible whenever you need it.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="about">
+      <h2>About InternTrack</h2>
+
+      <div class="about-content">
+        <div class="about-box">
+          <h3>About InternTrack</h3>
+          <p>
+            InternTrack is a modern internship management platform designed to
+            simplify internship monitoring for students.
+          </p>
+
+          <p>
+            Instead of manually recording attendance through spreadsheets or
+            paper logs, InternTrack provides an organized digital workspace
+            where users can log hours, manage projects, monitor progress, and
+            view performance through interactive reports.
+          </p>
+
+          <p>
+            Our goal is to make internship tracking simple, efficient, and
+            stress-free so students can focus more on learning and professional
+            growth.
+          </p>
+        </div>
+
+        <div class="about-box">
+          <h3>Our Mission</h3>
+          <p>
+            To provide students with a reliable, organized, and user-friendly
+            platform for managing internship attendance, progress, and
+            reporting.
+          </p>
+        </div>
+
+        <div class="about-box">
+          <h3>Our Vision</h3>
+          <p>
+            To become a trusted digital companion for internship management by
+            promoting productivity, accuracy, and transparency throughout every
+            student's internship journey.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTACT SECTION -->
+    <section class="contact-section" id="contact">
+      <div class="contact-container">
+        <div class="contact-header">
+          <h2>Get in Touch</h2>
+          <p>Have questions or suggestions? We'd love to hear from you.</p>
+        </div>
+
+        <div class="contact-content">
+          <!-- Contact Information -->
+          <div class="contact-info">
+            <div class="contact-card">
+              <h3>Email</h3>
+              <p>support@interntrack.com</p>
+            </div>
+
+            <div class="contact-card">
+              <h3>Phone</h3>
+              <p>(+63) 912 345 6789</p>
+            </div>
+
+            <div class="contact-card">
+              <h3>Office Hours</h3>
+              <p>
+                Monday – Friday<br />
+                8:00 AM – 5:00 PM
+              </p>
+            </div>
+
+            <div class="contact-card">
+              <h3>Office Address</h3>
+              <p>
+                Quezon City<br />
+                Metro Manila<br />
+                Philippines
+              </p>
+            </div>
+          </div>
+
+          <!-- Contact Form -->
+          <div class="contact-form">
+            <h3>Contact Form</h3>
+
+            <form>
+              <div class="form-group">
+                <label>Full Name</label>
+                <input type="text" placeholder="Enter your name" />
+              </div>
+
+              <div class="form-group">
+                <label>Email Address</label>
+                <input type="email" placeholder="Enter your email" />
+              </div>
+
+              <div class="form-group">
+                <label>Subject</label>
+                <input type="text" placeholder="Enter subject" />
+              </div>
+
+              <div class="form-group">
+                <label>Message</label>
+                <textarea rows="5" placeholder="Write your message"></textarea>
+              </div>
+
+              <button type="submit">Send Message</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER SECTION -->
+    <footer class="footer">
+      <div class="footer-container">
+        <!-- Brand -->
+        <div class="footer-brand">
+          <div class="footer-logo">
+            <div class="logo-icon">IT</div>
+            <span>InternTrack</span>
+          </div>
+
+          <p>Helping students manage internship hours with confidence.</p>
+        </div>
+
+        <!-- Quick Links -->
+        <div class="footer-column">
+          <h3>Quick Links</h3>
+
+          <a href="#">Home</a>
+          <a href="#">Features</a>
+          <a href="#">How It Works</a>
+          <a href="#">Dashboard</a>
+          <a href="#">Reports</a>
+          <a href="#">FAQs</a>
+          <a href="#">About</a>
+          <a href="#">Contact</a>
+        </div>
+
+        <!-- Resources -->
+        <div class="footer-column">
+          <h3>Resources</h3>
+
+          <a href="#">Privacy Policy</a>
+          <a href="#">Terms of Service</a>
+          <a href="#">Help Center</a>
+          <a href="#">Documentation</a>
+          <a href="#">Support</a>
+        </div>
+
+        <!-- Social -->
+        <div class="footer-column">
+          <h3>Follow Us</h3>
+
+          <a href="#">Facebook</a>
+          <a href="#">Instagram</a>
+          <a href="#">LinkedIn</a>
+          <a href="#">GitHub</a>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p>© 2026 InternTrack. All rights reserved.</p>
+
+        <p>
+          Designed and developed for internship hour tracking and management.
+        </p>
+      </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+      (function () {
+        "use strict";
+
+        const carousel = document.getElementById("carousel");
+        const track = document.getElementById("track");
+
+        const GAP = 20; // must match the gap in style.css
+
+        // ---- BUILD AN INFINITE STRIP -------------------------------------------
+        // Keep the true set of images, then render several back-to-back copies.
+        // Because every copy is pixel-identical, sliding from one copy into the
+        // next is invisible — that's what makes the loop feel infinite instead
+        // of snapping back to a start/end.
+        const originals = [...track.children].map((img) => img.cloneNode(true));
+        const N = originals.length;
+        const REPEAT = 5; // odd number so there's a clean middle copy to start on
+
+        track.innerHTML = "";
+        for (let r = 0; r < REPEAT; r++) {
+          originals.forEach((img) => track.appendChild(img.cloneNode(true)));
+        }
+
+        // ---- LAYOUT -------------------------------------------------------------
+        let slideWidth = 0; // width of one card including its trailing gap
+        let setWidth = 0; // width of one full copy of the original set
+        const MIDDLE_SET = Math.floor(REPEAT / 2);
+
+        function measure() {
+          const first = track.children[0];
+          slideWidth = first.getBoundingClientRect().width + GAP;
+          setWidth = slideWidth * N;
+        }
+
+        // ---- STATE ----------------------------------------------------------
+        let offset = 0; // current translateX, always kept near the middle copy
+        let velocity = 0; // px / ms
+        let isDragging = false;
+        let startX = 0;
+        let startOffset = 0;
+        let pointerId = null;
+
+        // small rolling buffer of recent {t, x} samples, used to compute
+        // release velocity from real recent motion rather than a single delta
+        const SAMPLE_WINDOW_MS = 100;
+        let samples = [];
+
+        let rafId = null; // inertia / snap animation frame handle
+
+        function applyTransform() {
+          track.style.transform = `translateX(${offset}px)`;
+        }
+
+        // Correct the offset back toward the middle copy whenever it drifts a
+        // full set-width away. This runs every frame movement happens, so even
+        // very large, fast, repeated flicks stay correctly wrapped — it just
+        // never gets the chance to run out of rendered copies.
+        function wrap() {
+          const center = -setWidth * MIDDLE_SET;
+          while (offset > center + setWidth * 0.5) offset -= setWidth;
+          while (offset < center - setWidth * 0.5) offset += setWidth;
+        }
+
+        function setInitialPosition() {
+          measure();
+          offset = -setWidth * MIDDLE_SET;
+          applyTransform();
+        }
+
+        // ---- POINTER (mouse + touch, unified) ----------------------------------
+        function onPointerDown(e) {
+          stopAnimation();
+          isDragging = true;
+          pointerId = e.pointerId;
+          carousel.setPointerCapture(pointerId);
+          carousel.classList.add("dragging");
+
+          startX = e.clientX;
+          startOffset = offset;
+          velocity = 0;
+          samples = [{ t: performance.now(), x: e.clientX }];
+        }
+
+        function onPointerMove(e) {
+          if (!isDragging || e.pointerId !== pointerId) return;
+
+          const dx = e.clientX - startX;
+          offset = startOffset + dx;
+          wrap();
+          applyTransform();
+
+          const now = performance.now();
+          samples.push({ t: now, x: e.clientX });
+          // drop samples older than the window so velocity reflects recent motion
+          while (samples.length > 2 && now - samples[0].t > SAMPLE_WINDOW_MS) {
+            samples.shift();
+          }
+        }
+
+        function onPointerUp(e) {
+          if (!isDragging || e.pointerId !== pointerId) return;
+          isDragging = false;
+          carousel.classList.remove("dragging");
+          carousel.releasePointerCapture(pointerId);
+
+          const now = performance.now();
+          while (samples.length > 2 && now - samples[0].t > SAMPLE_WINDOW_MS) {
+            samples.shift();
+          }
+          const first = samples[0];
+          const last = samples[samples.length - 1];
+          const dt = last.t - first.t;
+          velocity = dt > 0 ? (last.x - first.x) / dt : 0; // px per ms
+
+          startInertia();
+        }
+
+        carousel.addEventListener("pointerdown", onPointerDown);
+        carousel.addEventListener("pointermove", onPointerMove);
+        carousel.addEventListener("pointerup", onPointerUp);
+        carousel.addEventListener("pointercancel", onPointerUp);
+
+        // ---- PHYSICS: INERTIA THEN SNAP -----------------------------------
+        // Everything here is driven by requestAnimationFrame with real elapsed
+        // time, never a CSS transition — so drag -> inertia -> snap is one
+        // continuous motion with no hand-off jump.
+        const FRICTION = 0.94; // per ~16.7ms frame; higher = glides further
+        const STOP_VELOCITY = 0.02; // px/ms below this, inertia ends
+        const SNAP_EASE = 0.16; // 0..1, how quickly the final snap closes the gap
+        const SNAP_DONE_PX = 0.4;
+
+        function stopAnimation() {
+          if (rafId !== null) {
+            cancelAnimationFrame(rafId);
+            rafId = null;
+          }
+        }
+
+        function startInertia() {
+          let lastT = performance.now();
+
+          function tick(now) {
+            const dt = Math.min(now - lastT, 48); // clamp huge gaps (tab switch etc.)
+            lastT = now;
+
+            // time-normalized friction so speed doesn't depend on frame rate
+            const decay = Math.pow(FRICTION, dt / 16.7);
+            velocity *= decay;
+
+            offset += velocity * dt;
+            wrap();
+            applyTransform();
+
+            if (Math.abs(velocity) > STOP_VELOCITY) {
+              rafId = requestAnimationFrame(tick);
+            } else {
+              startSnap();
+            }
+          }
+
+          rafId = requestAnimationFrame(tick);
+        }
+
+        function startSnap() {
+          // Unlimited skipping: whatever card the momentum carried us near,
+          // snap to THAT one — not just one step from where we started.
+          const target = Math.round(offset / slideWidth) * slideWidth;
+
+          function tick() {
+            const diff = target - offset;
+
+            if (Math.abs(diff) < SNAP_DONE_PX) {
+              offset = target;
+              wrap();
+              applyTransform();
+              rafId = null;
+              return;
+            }
+
+            offset += diff * SNAP_EASE;
+            wrap();
+            applyTransform();
+            rafId = requestAnimationFrame(tick);
+          }
+
+          rafId = requestAnimationFrame(tick);
+        }
+
+        // ---- RESIZE -----------------------------------------------------------
+        let resizeTimer = null;
+        window.addEventListener("resize", () => {
+          clearTimeout(resizeTimer);
+          resizeTimer = setTimeout(() => {
+            const prevSlideWidth = slideWidth || 1;
+            const cardIndexOffset = offset / prevSlideWidth;
+            measure();
+            offset = cardIndexOffset * slideWidth;
+            wrap();
+            applyTransform();
+          }, 100);
+        });
+
+        // ---- INIT ---------------------------------------------------------
+        setInitialPosition();
+      })();
+    </script>
   </body>
 </html>
