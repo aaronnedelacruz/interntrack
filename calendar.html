@@ -282,27 +282,65 @@
       }
 
       .card {
-        background: white;
         border-radius: 18px;
         padding: 25px;
         box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
-        transition: 0.3s;
+        transition: all 0.3s ease;
       }
 
       .card:hover {
         transform: translateY(-5px);
+        box-shadow: 0 16px 35px rgba(0, 0, 0, 0.12);
       }
 
       .card h3 {
         font-size: 16px;
-        color: #666;
+        font-weight: 500;
         margin-bottom: 12px;
       }
 
       .card .number {
         font-size: 36px;
-        font-weight: bold;
-        color: #005f73;
+        font-weight: 700;
+        line-height: 1;
+      }
+
+      /* ==========================
+   SUMMARY CARDS
+========================== */
+
+      .summary {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 20px;
+        margin-bottom: 35px;
+      }
+
+      .card {
+        background: linear-gradient(135deg, #005f73 0%, #0a9396 100%);
+        border-radius: 18px;
+        padding: 25px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+      }
+
+      .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 16px 35px rgba(0, 0, 0, 0.12);
+      }
+
+      .card h3 {
+        font-size: 16px;
+        font-weight: 500;
+        color: rgba(255, 255, 255, 0.9);
+        margin-bottom: 12px;
+      }
+
+      .card .number {
+        font-size: 36px;
+        font-weight: 700;
+        color: #fff9f4;
+        line-height: 1;
       }
 
       /* ==========================
@@ -456,73 +494,49 @@
       }
 
       .event-section:not(:last-child) {
-        margin-bottom: 26px;
+        margin-bottom: 24px;
       }
 
       .event-section h2 {
-        font-size: 20px;
-        margin-bottom: 12px;
+        font-size: 18px;
+        font-weight: 600;
         color: #005f73;
+        margin-bottom: 18px;
       }
 
-      /* Next Workday */
-
-      .info-list {
-        list-style: none;
-      }
-
-      .info-list li {
-        padding: 10px 0;
-        font-size: 15px;
-        border-bottom: 1px solid #ececec;
-        line-height: 1.4;
-      }
-
-      .info-list li:last-child {
-        border-bottom: none;
-      }
-
-      /* Deadlines & Holidays */
-
-      .deadline-list,
-      .holiday-list {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-      }
-
-      .deadline-item,
-      .holiday-item,
-      .empty-state {
-        background: #f8f8f8;
-        border-radius: 10px;
-        padding: 12px 14px;
-      }
-
-      .deadline-item,
-      .holiday-item {
+      .info-row {
         display: flex;
         justify-content: space-between;
         align-items: center;
+
+        padding: 8px 0;
+
+        border-bottom: 1px solid #ececec;
       }
 
-      .deadline-item strong,
-      .holiday-item strong {
-        color: #005f73;
+      .info-row:last-child {
+        border-bottom: none;
+      }
+
+      .info-row span {
         font-size: 15px;
-      }
-
-      .deadline-item span,
-      .holiday-item span {
         color: #666;
-        font-size: 13px;
       }
 
-      .empty-state {
-        color: #888;
-        font-size: 14px;
+      .info-row strong {
+        font-size: 15px;
+        font-weight: 600;
+        color: #005f73;
+        text-align: right;
+      }
+
+      .info-row.empty {
+        justify-content: flex-start;
+      }
+
+      .info-row.empty span {
+        color: #999;
         font-style: italic;
-        text-align: center;
       }
 
       /* ==========================
@@ -624,7 +638,10 @@
 
       <!-- Bottom Section -->
       <div class="logout">
-        <a href="index.html">Log Out</a>
+        <a href="index.html">
+          <i class="bi bi-box-arrow-right"></i>
+          <span>Log Out</span>
+        </a>
       </div>
     </div>
 
@@ -643,22 +660,22 @@
       <!-- ATTENDANCE SUMMARY -->
 
       <div class="summary">
-        <div class="card">
+        <div class="card daily-card">
           <h3>Daily Average Hours</h3>
           <div class="number">8</div>
         </div>
 
-        <div class="card">
+        <div class="card active-card">
           <h3>Total Days Active</h3>
           <div class="number">45</div>
         </div>
 
-        <div class="card">
+        <div class="card month-card">
           <h3>Total Hours This Month</h3>
           <div class="number">56</div>
         </div>
 
-        <div class="card">
+        <div class="card remaining-card">
           <h3>Remaining Work Days</h3>
           <div class="number">17.5</div>
         </div>
@@ -668,43 +685,46 @@
 
       <div class="calendar-layout">
         <!-- Next Workday Preview -->
+
         <div class="events">
-          <!-- Next Workday -->
           <div class="event-section">
             <h2>Next Workday Preview</h2>
 
-            <ul class="info-list">
-              <li id="next-day">Next OJT Day: --</li>
-              <li id="expected-hours">Expected Hours: --</li>
-              <li id="countdown">Time Until Next Session: --</li>
-            </ul>
-          </div>
+            <div class="info-row">
+              <span>Next OJT Day</span>
+              <strong id="next-day">--</strong>
+            </div>
 
-          <!-- Deadlines -->
-          <div class="event-section">
-            <h2>Deadlines</h2>
+            <div class="info-row">
+              <span>Expected Hours</span>
+              <strong id="expected-hours">--</strong>
+            </div>
 
-            <div class="deadline-list">
-              <!-- Add more deadline-item divs manually whenever needed -->
-
-              <div class="empty-state">No upcoming deadlines.</div>
+            <div class="info-row">
+              <span>Time Until Session</span>
+              <strong id="countdown">--</strong>
             </div>
           </div>
 
-          <!-- Holidays -->
+          <div class="event-section">
+            <h2>Deadlines</h2>
+
+            <div class="info-row empty">
+              <span>No upcoming deadlines.</span>
+            </div>
+          </div>
+
           <div class="event-section">
             <h2>Holidays</h2>
 
-            <div class="holiday-list">
-              <div class="holiday-item">
-                <strong>Good Friday</strong>
-                <span>April 3, 2026</span>
-              </div>
+            <div class="info-row">
+              <span>Good Friday</span>
+              <strong>April 3, 2026</strong>
+            </div>
 
-              <div class="holiday-item">
-                <strong>Araw ng Kagitingan</strong>
-                <span>April 9, 2026</span>
-              </div>
+            <div class="info-row">
+              <span>Araw ng Kagitingan</span>
+              <strong>April 9, 2026</strong>
             </div>
           </div>
         </div>
@@ -733,6 +753,7 @@
       </div>
     </div>
     <script>
+      //sidebar navigation bar
       const toggleBtn = document.getElementById("menu-toggle");
       const menuIcon = document.getElementById("menu-icon");
       const sidebar = document.getElementById("sidebar");
@@ -776,6 +797,7 @@
       });
     </script>
     <script>
+      //calendar
       const monthNames = [
         "January",
         "February",
@@ -868,7 +890,7 @@
 
       function formatDate(d) {
         return d.toLocaleDateString("en-US", {
-          weekday: "long",
+          weekday: "short",
           month: "long",
           day: "numeric",
           year: "numeric",
@@ -888,23 +910,20 @@
         let countdownText = "";
 
         if (days === 0) {
-          countdownText = `${hours} hour${hours !== 1 ? "s" : ""}`;
+          countdownText = `${hours} hr${hours !== 1 ? "s" : ""}`;
         } else {
           countdownText = `${days} day${days !== 1 ? "s" : ""}`;
 
           if (hours > 0) {
-            countdownText += ` and ${hours} hour${hours !== 1 ? "s" : ""}`;
+            countdownText += ` and ${hours} hr${hours !== 1 ? "s" : ""}`;
           }
         }
 
-        document.getElementById("next-day").textContent =
-          "Next OJT Day: " + formatDate(next);
+        document.getElementById("next-day").textContent = formatDate(next);
 
-        document.getElementById("expected-hours").textContent =
-          "Expected Hours: 8 hrs";
+        document.getElementById("expected-hours").textContent = "8 hrs";
 
-        document.getElementById("countdown").textContent =
-          "Time Until Next Session: " + countdownText;
+        document.getElementById("countdown").textContent = countdownText;
       }
 
       updateNextWorkdayPreview();

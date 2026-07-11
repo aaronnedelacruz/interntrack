@@ -259,119 +259,468 @@
         font-weight: 600;
       }
 
-      /* CARD */
+      /* ==========================
+PROFILE CARDS
+========================== */
+
       .card {
-        background: white;
+        background: #ffffff;
         padding: 25px;
-        border-radius: 18px;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
-        margin-bottom: 20px;
+        border-radius: 20px;
+
+        box-shadow: 0 10px 25px rgba(0, 95, 115, 0.08);
+
+        margin-bottom: 25px;
+
+        border: 1px solid #d8e1e9;
       }
 
-      /* PROFILE */
-      .profile-header {
+      /* ==========================
+PROFILE HERO
+========================== */
+
+      .profile-banner {
         display: flex;
-        gap: 20px;
+        justify-content: space-between;
         align-items: center;
+
+        gap: 25px;
+
+        padding: 30px;
+
+        background: linear-gradient(135deg, #005669, #0a9396);
+
+        border-radius: 24px;
+
+        color: white;
+
+        margin-bottom: 25px;
+
+        box-shadow: 0 12px 30px rgba(0, 95, 115, 0.18);
       }
 
-      .profile-pic {
-        width: 90px;
-        height: 90px;
+      .profile-left {
+        display: flex;
+        align-items: center;
+        gap: 25px;
+      }
+
+      .profile-avatar {
+        width: 100px;
+        height: 100px;
+
         border-radius: 50%;
-        border: 3px solid #0a9396;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        font-size: 45px;
+
+        background: rgba(255, 255, 255, 0.15);
+
+        border: 4px solid rgba(255, 255, 255, 0.35);
       }
 
-      /* INPUTS */
+      .profile-details h2 {
+        font-size: 30px;
+        margin-bottom: 8px;
+      }
+
+      .profile-details p {
+        font-size: 16px;
+        opacity: 0.9;
+      }
+
+      .profile-badges {
+        display: flex;
+        gap: 12px;
+
+        margin-top: 12px;
+
+        flex-wrap: wrap;
+      }
+
+      .badge {
+        display: flex;
+
+        align-items: center;
+
+        gap: 8px;
+
+        padding: 8px 15px;
+
+        border-radius: 50px;
+
+        font-size: 13px;
+
+        font-weight: 600;
+      }
+
+      .badge.school {
+        background: #d8eaf0;
+
+        color: #005669;
+      }
+
+      .badge.active {
+        background: #7c974b;
+
+        color: white;
+      }
+
+      /* ==========================
+PROFILE ACTION ICONS
+========================== */
+
+      .profile-actions {
+        display: flex;
+
+        gap: 12px;
+
+        margin-left: auto;
+      }
+
+      .icon-btn {
+        width: 45px;
+
+        height: 45px;
+
+        border: none;
+
+        border-radius: 12px;
+
+        display: flex;
+
+        justify-content: center;
+
+        align-items: center;
+
+        cursor: pointer;
+
+        color: white;
+
+        font-size: 18px;
+
+        transition: 0.2s;
+      }
+
+      .edit-btn {
+        background: #ee9b00;
+      }
+
+      .edit-btn:hover {
+        background: #d98f00;
+      }
+
+      .save-btn {
+        background: #005f73;
+      }
+
+      .save-btn:hover {
+        background: #004858;
+      }
+
+      /* ==========================
+PROFILE GRID
+========================== */
+
+      .profile-grid {
+        display: grid;
+
+        grid-template-columns: repeat(2, minmax(300px, 1fr));
+
+        gap: 25px;
+      }
+
+      /* ==========================
+SECTION HEADER
+========================== */
+
+      .section-title {
+        display: flex;
+
+        align-items: center;
+
+        gap: 12px;
+
+        color: white;
+
+        padding: 16px 20px;
+
+        margin: -25px -25px 25px;
+
+        border-radius: 20px 20px 0 0;
+      }
+
+      .section-title i {
+        font-size: 22px;
+      }
+
+      .section-title h2 {
+        font-size: 20px;
+      }
+
+      /* Teal */
+
+      .section-title.personal {
+        background: #005f73;
+      }
+
+      /*Cyan*/
+
+      .section-title.internship {
+        background: #0a9396;
+      }
+
+      /* Orange */
+
+      .section-title.settings {
+        background: #ee9b00;
+      }
+
+      /* ==========================
+FIELDS
+========================== */
+
       .info-grid {
         display: grid;
+
         grid-template-columns: repeat(2, 1fr);
-        gap: 15px;
+
+        gap: 18px;
       }
 
       .field {
-        background: #f8f8f8;
-        padding: 12px;
+        background: #f8fcfd;
+
+        border: 1px solid #d8e1e9;
+
+        padding: 16px;
+
         border-radius: 10px;
       }
 
       .field span {
-        font-size: 12px;
-        color: #666;
+        display: block;
+
+        font-size: 11px;
+
+        text-transform: uppercase;
+
+        letter-spacing: 1px;
+
+        color: #60757f;
+
+        font-weight: 700;
+
+        margin-bottom: 8px;
       }
 
       .field input {
         width: 100%;
+
         border: none;
-        background: transparent;
-        font-size: 15px;
-        font-weight: 600;
-        color: #005f73;
-        margin-top: 5px;
+
         outline: none;
+
+        background: transparent;
+
+        font-size: 16px;
+
+        font-weight: 600;
+
+        color: #005669;
+      }
+      /* ==========================
+INTERNSHIP SETTINGS GROUP
+========================== */
+
+      .settings-card .info-grid {
+        display: flex;
+
+        flex-direction: column;
+
+        gap: 0;
       }
 
-      /* BUTTONS */
+      .settings-card .field {
+        display: flex;
+
+        justify-content: space-between;
+
+        align-items: center;
+
+        background: #f8fcfd;
+
+        border: 1px solid #d8e1e9;
+
+        padding: 16px 18px;
+
+        border-radius: 0;
+      }
+
+      /* Top rounded corner */
+
+      .settings-card .field:first-child {
+        border-radius: 12px 12px 0 0;
+      }
+
+      /* Remove double borders */
+
+      .settings-card .field + .field {
+        border-top: none;
+      }
+
+      /* Bottom rounded corner */
+
+      .settings-card .field:last-child {
+        border-radius: 0 0 12px 12px;
+      }
+
+      /* Settings labels */
+
+      .settings-card .field span {
+        margin-bottom: 0;
+      }
+
+      /* Settings values */
+
+      .settings-card .field input {
+        width: auto;
+
+        text-align: right;
+      }
+
+      /* ==========================
+WORKING DAYS
+========================== */
+
+      .working-days {
+        grid-column: span 2;
+      }
+
+      .days {
+        display: flex;
+
+        flex-wrap: wrap;
+
+        gap: 10px;
+
+        margin-top: 12px;
+      }
+
+      .days label {
+        background: #0a9396;
+
+        color: white;
+
+        padding: 8px 16px;
+
+        border-radius: 50px;
+
+        font-size: 14px;
+
+        font-weight: 600;
+      }
+
+      .days input {
+        display: none;
+      }
+
+      /* ==========================
+BUTTONS
+========================== */
+
+      .profile-actions {
+        display: flex;
+
+        gap: 12px;
+      }
+
       .btn {
-        padding: 12px 18px;
+        padding: 12px 20px;
+
         border: none;
-        border-radius: 10px;
+
+        border-radius: 12px;
+
         cursor: pointer;
-        font-weight: bold;
-        margin-right: 10px;
+
+        font-weight: 700;
+
+        display: flex;
+
+        align-items: center;
+
+        gap: 8px;
       }
 
       .btn-primary {
         background: #ee9b00;
+
         color: white;
       }
+
       .btn-primary:hover {
         background: #d98f00;
       }
 
       .btn-secondary {
         background: #0a9396;
+
         color: white;
       }
+
       .btn-secondary:hover {
-        opacity: 0.9;
+        background: #087b80;
       }
 
-      /* disabled look */
+      /* Disabled Inputs */
+
       input[disabled] {
-        opacity: 0.8;
+        opacity: 0.85;
       }
 
-      /* RESPONSIVE */
-      @media (max-width: 900px) {
-        .sidebar {
-          width: 210px;
+      /* ==========================
+RESPONSIVE
+========================== */
+
+      @media (max-width: 1000px) {
+        .profile-grid {
+          grid-template-columns: 1fr;
         }
-        .main {
-          margin-left: 210px;
-          width: calc(100% - 210px);
+
+        .profile-banner {
+          flex-direction: column;
+
+          align-items: flex-start;
         }
+
         .info-grid {
           grid-template-columns: 1fr;
+        }
+
+        .working-days {
+          grid-column: auto;
         }
       }
 
       @media (max-width: 768px) {
-        body {
+        .profile-left {
+          flex-direction: column;
+
+          align-items: flex-start;
+        }
+
+        .profile-actions {
+          width: 100%;
+
           flex-direction: column;
         }
-        .sidebar {
-          position: relative;
-          width: 100%;
-          height: auto;
-        }
-        .main {
-          margin-left: 0;
-          width: 100%;
-        }
-        .profile-header {
-          flex-direction: column;
-          text-align: center;
+
+        .btn {
+          justify-content: center;
         }
       }
     </style>
@@ -379,6 +728,16 @@
 
   <body>
     <div class="main" id="main">
+      <div class="header">
+        <div>
+          <h1>My Profile</h1>
+
+          <p>Manage internship projects and work sessions.</p>
+        </div>
+
+        <div class="date">📅 March 11, 2026</div>
+      </div>
+
       <!-- SIDEBAR -->
 
       <div class="sidebar" id="sidebar">
@@ -435,89 +794,181 @@
 
         <!-- Bottom Section -->
         <div class="logout">
-          <a href="index.html">Log Out</a>
+          <a href="index.html">
+            <i class="bi bi-box-arrow-right"></i>
+            <span>Log Out</span>
+          </a>
         </div>
       </div>
 
-      <!-- PERSONAL INFO -->
-      <div class="card">
-        <h2>Personal Information</h2>
-        <br />
+      <!-- ==========================
+          PROFILE HERO
+      ========================== -->
 
-        <div class="info-grid">
-          <div class="field">
-            <span>First Name</span>
-            <input value="Juan" disabled />
+      <div class="profile-banner">
+        <div class="profile-left">
+          <div class="profile-avatar">
+            <i class="bi bi-person-fill"></i>
           </div>
 
-          <div class="field">
-            <span>Last Name</span>
-            <input value="Dela Cruz" disabled />
+          <div class="profile-details">
+            <h2>Juan Dela Cruz</h2>
+            <p>BS Information Technology</p>
+
+            <div class="profile-badges">
+              <span class="badge school">
+                <i class="bi bi-mortarboard-fill"></i>
+                New Era University
+              </span>
+
+              <span class="badge active">
+                <i class="bi bi-check-circle-fill"></i>
+                Active Internship
+              </span>
+            </div>
+          </div>
+        </div>
+        <div class="profile-actions">
+          <button
+            class="icon-btn edit-btn"
+            onclick="enableEdit()"
+            title="Edit Profile"
+          >
+            <i class="bi bi-pencil-fill"></i>
+          </button>
+
+          <button
+            class="icon-btn save-btn"
+            onclick="saveProfile()"
+            title="Save Changes"
+          >
+            <i class="bi bi-check-lg"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- ==========================
+        TOP GRID
+      ========================== -->
+
+      <div class="profile-grid">
+        <!-- PERSONAL INFORMATION -->
+
+        <div class="card">
+          <div class="section-title personal">
+            <i class="bi bi-person-vcard-fill"></i>
+            <h2>Personal Information</h2>
           </div>
 
-          <div class="field">
-            <span>Email</span>
-            <input value="juandelacruz@gmail.com" disabled />
+          <div class="info-grid">
+            <div class="field">
+              <span>First Name</span>
+              <input value="Juan" disabled />
+            </div>
+
+            <div class="field">
+              <span>Last Name</span>
+              <input value="Dela Cruz" disabled />
+            </div>
+
+            <div class="field">
+              <span>Email Address</span>
+              <input value="juandelacruz@gmail.com" disabled />
+            </div>
+
+            <div class="field">
+              <span>Student ID</span>
+              <input value="2023-12345" disabled />
+            </div>
+          </div>
+        </div>
+
+        <!-- INTERNSHIP DETAILS -->
+
+        <div class="card">
+          <div class="section-title internship">
+            <i class="bi bi-briefcase-fill"></i>
+            <h2>Internship Details</h2>
           </div>
 
-          <div class="field">
-            <span>Department</span>
-            <input value="IT Department" disabled />
-          </div>
+          <div class="info-grid">
+            <div class="field">
+              <span>Company</span>
+              <input value="Simplevia Technologies Inc." disabled />
+            </div>
 
-          <div class="field">
-            <span>Student ID</span>
-            <input value="2023-12345" disabled />
+            <div class="field">
+              <span>Department</span>
+              <input value="UI/UX Department" disabled />
+            </div>
+
+            <div class="field">
+              <span>OJT Supervisor</span>
+              <input value="Mr. John Doe" disabled />
+            </div>
+
+            <div class="field">
+              <span>School</span>
+              <input value="New Era University" disabled />
+            </div>
+
+            <div class="field full-width">
+              <span>OJT Professor</span>
+              <input value="Prof. Jane Doe" disabled />
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- INTERNSHIP -->
-      <div class="card">
-        <h2>Internship Details</h2>
-        <br />
+      <!-- ==========================
+      INTERNSHIP SETTINGS
+       ========================== -->
 
-        <div class="info-grid">
+      <div class="card settings-card">
+        <div class="section-title settings">
+          <i class="bi bi-gear-fill"></i>
+          <h2>Internship Settings</h2>
+        </div>
+
+        <div class="settings-grid">
           <div class="field">
-            <span>Company</span>
-            <input value="Dexter's Laboratory" disabled />
+            <span>Total Required OJT Hours</span>
+            <input type="number" value="500" disabled />
           </div>
 
           <div class="field">
-            <span>Company Address</span>
-            <input value="Quezon City, Metro Manila" disabled />
+            <span>Expected Hours per Day</span>
+            <input type="number" value="8" disabled />
+          </div>
+
+          <div class="field working-days">
+            <span>Working Days</span>
+
+            <div class="days">
+              <label><input type="checkbox" checked disabled /> Monday</label>
+
+              <label><input type="checkbox" checked disabled /> Tuesday</label>
+
+              <label
+                ><input type="checkbox" checked disabled /> Wednesday</label
+              >
+
+              <label><input type="checkbox" checked disabled /> Thursday</label>
+
+              <label><input type="checkbox" checked disabled /> Friday</label>
+            </div>
           </div>
 
           <div class="field">
-            <span>Supervisor</span>
-            <input value="Mr. John Doe" disabled />
+            <span>Standard Time</span>
+            <input value="8:00 AM – 5:00 PM" disabled />
           </div>
 
           <div class="field">
-            <span>OJT Professor</span>
-            <input value="Prof. Jane Doe" disabled />
-          </div>
-
-          <div class="field">
-            <span>Hours This Week</span>
-            <input value="16 hrs" disabled />
-          </div>
-
-          <div class="field">
-            <span>Hours This Month</span>
-            <input value="56 hrs" disabled />
+            <span>Internship Start Date</span>
+            <input type="date" value="2026-01-05" disabled />
           </div>
         </div>
-      </div>
-
-      <!-- ACTIONS -->
-      <div class="card">
-        <button class="btn btn-primary" onclick="enableEdit()">
-          Edit Profile
-        </button>
-        <button class="btn btn-secondary" onclick="disableEdit()">
-          Save Changes
-        </button>
       </div>
     </div>
 
@@ -566,12 +1017,27 @@
     </script>
     <script>
       function enableEdit() {
-        document.querySelectorAll("input").forEach((i) => (i.disabled = false));
+        document
+          .querySelectorAll("input")
+          .forEach((input) => (input.disabled = false));
+
+        document.querySelector(".edit-btn").style.display = "none";
+
+        document.querySelector(".save-btn").style.display = "flex";
       }
 
-      function disableEdit() {
-        document.querySelectorAll("input").forEach((i) => (i.disabled = true));
+      function saveProfile() {
+        document
+          .querySelectorAll("input")
+          .forEach((input) => (input.disabled = true));
+
+        document.querySelector(".edit-btn").style.display = "flex";
+
+        document.querySelector(".save-btn").style.display = "none";
       }
+
+      // Default state when page loads
+      document.querySelector(".save-btn").style.display = "none";
     </script>
   </body>
 </html>

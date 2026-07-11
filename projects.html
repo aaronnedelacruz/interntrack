@@ -310,36 +310,61 @@
 
       .quick-actions {
         display: flex;
-        gap: 12px;
-        margin: 25px 0 30px;
-        flex-wrap: wrap;
+        gap: 16px;
+        margin-bottom: 30px;
       }
 
       .quick-btn {
+        flex: 1;
         display: flex;
         align-items: center;
-        gap: 8px;
-        padding: 10px 16px;
-        background: #fff;
-        border: 1px solid #e5e7eb;
-        border-radius: 10px;
-        color: #005f73;
-        font-size: 14px;
+        justify-content: center;
+        gap: 10px;
+
+        padding: 16px 20px;
+
+        border: none;
+        border-radius: 16px;
+
+        font-size: 16px;
         font-weight: 600;
+
+        color: #fff9f4;
         cursor: pointer;
-        transition: all 0.2s ease;
+
+        transition: all 0.25s ease;
+        box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
       }
 
       .quick-btn:hover {
-        border-color: #0a9396;
-        color: #0a9396;
-        transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+        transform: translateY(-3px);
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
       }
 
       .quick-btn span:first-child {
-        font-size: 16px;
+        font-size: 22px;
         font-weight: 700;
+      }
+
+      /* New Project */
+
+      .project-btn {
+        background: linear-gradient(135deg, #005669, #0a9396);
+      }
+
+      .project-btn:hover {
+        background: linear-gradient(135deg, #005f73, #0a9396);
+      }
+
+      /* Start Timer */
+
+      .timer-btn {
+        background: linear-gradient(135deg, #d76b00, #ffba39);
+        color: #fff9f4;
+      }
+
+      .timer-btn:hover {
+        background: linear-gradient(135deg, #b85d00, #d98f00);
       }
 
       /* ==========================
@@ -468,25 +493,53 @@
 ========================== */
 
       .table-card {
-        background: #fff;
+        background: #ffffff;
         border-radius: 18px;
         padding: 25px;
         box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
       }
 
-      .project-table {
-        width: 100%;
-        border-collapse: collapse;
+      /* ---------- Header ---------- */
+
+      .table-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 22px;
       }
 
+      .table-header h2 {
+        margin: 0;
+        font-size: 24px;
+        font-weight: 700;
+        color: #005f73;
+      }
+
+      .table-year {
+        font-size: 30px;
+        font-weight: 700;
+        color: #f0a51a;
+        letter-spacing: 1px;
+      }
+
+      /* ---------- Table ---------- */
+
+      .project-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+      }
+
+      /* ---------- Header Row ---------- */
+
       .project-table thead th {
+        background: #005f73;
+        color: #fff9f4;
         padding: 16px 18px;
         text-align: left;
         font-size: 14px;
-        font-weight: 700;
-        color: #005f73;
-        background: #eef8f8;
-        border-bottom: 2px solid #d9ecec;
+        font-weight: 600;
+        letter-spacing: 0.3px;
       }
 
       .project-table thead th:first-child {
@@ -495,14 +548,17 @@
 
       .project-table thead th:last-child {
         border-top-right-radius: 12px;
+        text-align: center;
       }
 
+      /* ---------- Body ---------- */
+
       .project-table tbody tr {
-        transition: background 0.2s ease;
+        transition: all 0.25s ease;
       }
 
       .project-table tbody tr:hover {
-        background: #f8fcfc;
+        background: #f5fbfc;
       }
 
       .project-table tbody td {
@@ -510,54 +566,39 @@
         font-size: 15px;
         color: #555;
         border-bottom: 1px solid #ececec;
-        vertical-align: top;
+        vertical-align: middle;
       }
+
+      /* Project */
 
       .project-table tbody td:first-child {
         font-weight: 600;
         color: #005f73;
       }
 
+      /* Activity */
+
       .project-table tbody td:nth-child(2) {
-        font-weight: 600;
+        color: #444;
+        font-weight: 500;
       }
+
+      /* Hours */
 
       .project-table tbody td:nth-child(3) {
-        white-space: nowrap;
+        font-weight: 700;
         color: #0a9396;
-        font-weight: 700;
-      }
-
-      .project-table tbody td:last-child {
         white-space: nowrap;
-        color: #777;
       }
 
-      .project-table tbody tr:last-child td {
-        border-bottom: none;
+      /* Date */
+
+      .project-table tbody td:nth-child(4) {
+        color: #666;
+        white-space: nowrap;
       }
 
-      .table-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 20px;
-      }
-
-      .table-header h2 {
-        font-size: 24px;
-        font-weight: 700;
-        color: #005f73;
-        margin: 0;
-      }
-
-      .table-year {
-        font-size: 30px;
-        font-weight: 700;
-        color: #005f73;
-        opacity: 0.25;
-        letter-spacing: 0.05em;
-      }
+      /* Actions */
 
       .project-table td:last-child,
       .project-table th:last-child {
@@ -566,21 +607,38 @@
       }
 
       .project-table td:last-child i {
-        font-size: 18px;
+        font-size: 17px;
+        margin: 0 7px;
         cursor: pointer;
-        margin: 0 6px;
-        color: var(--primary);
-        transition: color 0.2s ease;
+        color: #005f73;
+        transition: all 0.2s ease;
       }
 
       .project-table td:last-child .bi-pencil-square:hover {
-        color: var(--accent);
+        color: #0a9396;
+        transform: scale(1.12);
       }
 
       .project-table td:last-child .bi-trash:hover {
-        color: #dc3545;
+        color: #ee9b00;
+        transform: scale(1.12);
       }
 
+      /* Remove last border */
+
+      .project-table tbody tr:last-child td {
+        border-bottom: none;
+      }
+
+      /* Zebra striping */
+
+      .project-table tbody tr:nth-child(even) {
+        background: #fcfdfd;
+      }
+
+      .project-table tbody tr:nth-child(even):hover {
+        background: #f5fbfc;
+      }
       /* ==========================
    RESPONSIVE TABLE
 ========================== */
@@ -692,7 +750,10 @@
 
       <!-- Bottom Section -->
       <div class="logout">
-        <a href="index.html">Log Out</a>
+        <a href="index.html">
+          <i class="bi bi-box-arrow-right"></i>
+          <span>Log Out</span>
+        </a>
       </div>
     </div>
 
@@ -714,17 +775,16 @@
       <!-- QUICK ACTIONS -->
 
       <div class="quick-actions">
-        <button class="quick-btn">
+        <button class="quick-btn project-btn">
           <span>+</span>
-          <span>New Project</span>
+          <span>New Log</span>
         </button>
 
-        <button class="quick-btn">
+        <button class="quick-btn timer-btn">
           <span>▶</span>
           <span>Start Timer</span>
         </button>
       </div>
-
       <!-- TABLE -->
 
       <div class="table-card">

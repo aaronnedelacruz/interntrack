@@ -292,33 +292,46 @@
 ========================= */
 
       .summary {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 15px;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 20px;
       }
 
       .stat {
-        flex: 1 1 180px; /* Preferred width */
-        min-width: 180px; /* Prevents cards from becoming too narrow */
-        max-width: 280px; /* Prevents cards from stretching too wide */
-
+        background: linear-gradient(135deg, #005f73, #0a9396);
+        color: #fff;
         text-align: center;
-        padding: 15px;
-        border-radius: 12px;
-        background: #f8f8f8;
+        padding: 24px;
+        border-radius: 16px;
+        box-shadow: 0 8px 20px rgba(10, 147, 150, 0.22);
+        transition:
+          transform 0.25s ease,
+          box-shadow 0.25s ease;
+      }
+
+      .stat:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 30px rgba(10, 147, 150, 0.35);
       }
 
       .stat h3 {
-        font-size: 14px;
-        color: #666;
-        margin-bottom: 8px;
+        margin: 0 0 12px;
+        font-size: 16px;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.9);
       }
 
       .stat strong {
         display: block;
-        font-size: 22px;
-        color: #005f73;
+        font-size: 25px;
+        font-weight: 700;
+        color: #fff;
+        line-height: 1.2;
+      }
+
+      /* Expected Completion Date */
+      .stat:last-child strong {
+        font-size: 25px;
       }
 
       /* =========================
@@ -523,6 +536,19 @@
         font-weight: 500;
       }
 
+      /* Monthly Total Row */
+      .monthly-table tbody tr:last-child td {
+        background: rgb(238, 156, 85);
+      }
+
+      .monthly-table tbody tr:last-child td:first-child {
+        border-bottom-left-radius: 8px;
+      }
+
+      .monthly-table tbody tr:last-child td:last-child {
+        border-bottom-right-radius: 8px;
+      }
+
       /* ==========================================
    WEEKLY BREAKDOWN TABLE
 ========================================== */
@@ -546,9 +572,34 @@
         font-weight: 500;
       }
 
+      /* Weekly Total Row */
+      .weekly-table tbody tr:last-child td {
+        background: rgb(238, 156, 85);
+      }
+
+      .weekly-table tbody tr:last-child td:first-child {
+        border-bottom-left-radius: 8px;
+      }
+
+      .weekly-table tbody tr:last-child td:last-child {
+        border-bottom-right-radius: 8px;
+      }
+
       /* ==========================
    COLUMN WIDTHS
 ========================== */
+
+      /* Rounded top-left corner */
+      .weekly-table thead th:first-child,
+      .monthly-table thead th:first-child {
+        border-top-left-radius: 8px;
+      }
+
+      /* Rounded top-right corner */
+      .weekly-table thead th:last-child,
+      .monthly-table thead th:last-child {
+        border-top-right-radius: 8px;
+      }
 
       /* Week */
       .weekly-table th:nth-child(1),
@@ -660,6 +711,10 @@
         padding: 12px 14px;
         border-radius: 12px;
         background: #f8f8f8;
+      }
+
+      .project-item:hover {
+        background: #e3edf3;
       }
 
       .rank-number {
@@ -943,7 +998,10 @@
 
       <!-- Bottom Section -->
       <div class="logout">
-        <a href="index.html">Log Out</a>
+        <a href="index.html">
+          <i class="bi bi-box-arrow-right"></i>
+          <span>Log Out</span>
+        </a>
       </div>
     </div>
 
@@ -982,7 +1040,7 @@
         </div>
 
         <div class="stat">
-          <h3>Expected Completion Date</h3>
+          <h3>Expected Completion</h3>
           <strong>April 3, 2026</strong>
         </div>
       </div>
@@ -1024,7 +1082,7 @@
       </div>
 
       <!-- MONTHLY BREAKDOWN-->
-       <div class="card">
+      <div class="card">
         <h2>Monthly Breakdown</h2>
 
         <div class="table-container">
@@ -1048,7 +1106,7 @@
       <!-- SIDE BY SIDE CHARTS -->
       <div class="card">
         <h2>Project Distribution</h2>
-        <span class="chart-subtitle">Time Spent by Project</span>
+        <span class="chart-subtitle">Time Spent per Project</span>
 
         <div class="project-distribution">
           <div class="pie-wrapper">
@@ -1319,7 +1377,7 @@
           sessions: 5,
         },
         {
-          week: "Week 4 (Jan 26, 2026 – Jan 28, 2026)",
+          week: "Week 4 (Jan 26, 2026 – Jan 30, 2026)",
           hours: 24,
           sessions: 3,
         },
@@ -1349,7 +1407,7 @@
           sessions: 5,
         },
         {
-          week: "Week 10 (Mar 9, 2026 – Mar 10, 2026)",
+          week: "Week 10 (Mar 9, 2026 – Mar 13, 2026)",
           hours: 16,
           sessions: 2,
         },
@@ -1398,27 +1456,27 @@
         {
           name: "Inventory Management",
           hours: 104,
-          color: "#2563eb",
+          color: "#005669", // Dark Teal
         },
         {
           name: "POS System",
           hours: 80,
-          color: "#10b981",
+          color: "#0A9396", // Dark Cyan
         },
         {
           name: "HRIS",
           hours: 72,
-          color: "#f59e0b",
+          color: "#7C974B", // Palm Leaf
         },
         {
           name: "Payroll System",
           hours: 56,
-          color: "#ef4444",
+          color: "#EE9B00", // Golden Orange
         },
         {
           name: "Library Management System",
           hours: 46,
-          color: "#8b5cf6",
+          color: "#F7CA7A", // Apricot Cream
         },
       ];
 
