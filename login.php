@@ -1,3 +1,6 @@
+<?php
+include "database.php";
+?>
 <!doctype html>
 <html lang="en">
   <head>
@@ -171,17 +174,27 @@
           <p>Welcome back!</p>
         </div>
 
-        <form>
+        <form method="POST" action="login_process.php">
           <div class="input-group">
             <label>Email Address</label>
 
-            <input type="email" placeholder="Enter your email" required />
+            <input
+              type="email"
+              name="email"
+              placeholder="Enter your email"
+              required
+            />
           </div>
 
           <div class="input-group">
             <label>Password</label>
 
-            <input type="password" placeholder="Enter your password" required />
+            <input
+              type="password"
+              name="password"
+              placeholder="Enter your password"
+              required
+            />
           </div>
 
           <div class="options">
@@ -193,13 +206,13 @@
             <a href="#">Forgot Password?</a>
           </div>
 
-          <button class="login-btn">Log In</button>
+          <button type="submit" class="login-btn">Log In</button>
         </form>
 
         <div class="signup">
           Don't have an account?
 
-          <a href="signup.html"> Sign Up </a>
+          <a href="signup.php"> Sign Up </a>
         </div>
 
         <div class="back-home">

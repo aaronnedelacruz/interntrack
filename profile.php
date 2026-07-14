@@ -1,3 +1,23 @@
+<?php
+
+session_start();
+
+$conn = new mysqli("localhost", "root", "", "interntrack");
+
+if ($conn->connect_error) {
+    die("Connection failed");
+}
+
+
+$user_id = $_SESSION['user_id'];
+
+$sql = "SELECT * FROM users WHERE id='$user_id'";
+
+$result = $conn->query($sql);
+
+$user = $result->fetch_assoc();
+
+?>
 <!doctype html>
 <html lang="en">
   <head>
@@ -625,7 +645,8 @@ WORKING DAYS
       }
 
       .days input {
-        display: none;
+        display: inline-block;
+        margin-right: 6px;
       }
 
       /* ==========================
@@ -735,7 +756,9 @@ RESPONSIVE
           <p>Manage internship projects and work sessions.</p>
         </div>
 
-        <div class="date">📅 March 11, 2026</div>
+        <div class="date">
+          📅 <?= date("F j, Y"); ?>
+        </div>
       </div>
 
       <!-- SIDEBAR -->
@@ -756,35 +779,35 @@ RESPONSIVE
 
           <ul>
             <li>
-              <a href="dashboard.html">
+              <a href="dashboard.php">
                 <i class="bi bi-ui-checks-grid"></i>
                 <span>Dashboard</span>
               </a>
             </li>
 
             <li>
-              <a href="projects.html">
+              <a href="projects.php">
                 <i class="bi bi-folder2"></i>
                 <span>Projects</span>
               </a>
             </li>
 
             <li>
-              <a href="calendar.html">
+              <a href="calendar.php">
                 <i class="bi bi-calendar-event"></i>
                 <span>Calendar</span>
               </a>
             </li>
 
             <li>
-              <a href="reports.html">
+              <a href="reports.php">
                 <i class="bi bi-bar-chart-line"></i>
                 <span>Reports</span>
               </a>
             </li>
 
             <li>
-              <a href="profile.html" class="active">
+              <a href="profile.php" class="active">
                 <i class="bi bi-person-circle"></i>
                 <span>Profile</span>
               </a>
@@ -804,172 +827,314 @@ RESPONSIVE
       <!-- ==========================
           PROFILE HERO
       ========================== -->
+      <form method="POST" action="profile_update.php" id="profileForm">
+        <div class="profile-banner">
+          <div class="profile-left">
+            <div class="profile-avatar">
+              <i class="bi bi-person-fill"></i>
+            </div>
 
-      <div class="profile-banner">
-        <div class="profile-left">
-          <div class="profile-avatar">
-            <i class="bi bi-person-fill"></i>
-          </div>
+            <div class="profile-details">
+              <h2>
+                <?= $user['first_name'] . " " . $user['last_name']; ?><!-- Display the user's full name -->
+              </h2>
+              <p><?= $user['course']; ?></p><!-- Display the user's course -->
 
-          <div class="profile-details">
-            <h2>Juan Dela Cruz</h2>
-            <p>BS Information Technology</p>
+              <div class="profile-badges">
+                <span class="badge school">
+                  <i class="bi bi-mortarboard-fill"></i>
+                  <?= $user['school']; ?>
+                </span>
 
-            <div class="profile-badges">
-              <span class="badge school">
-                <i class="bi bi-mortarboard-fill"></i>
-                New Era University
-              </span>
-
-              <span class="badge active">
-                <i class="bi bi-check-circle-fill"></i>
-                Active Internship
-              </span>
+                <span class="badge active">
+                  <i class="bi bi-check-circle-fill"></i>
+                  Active Internship
+                </span>
+              </div>
             </div>
           </div>
-        </div>
-        <div class="profile-actions">
-          <button
-            class="icon-btn edit-btn"
-            onclick="enableEdit()"
-            title="Edit Profile"
-          >
-            <i class="bi bi-pencil-fill"></i>
-          </button>
+          <div class="profile-actions">
+            <button
+              type="button"
+              class="icon-btn edit-btn"
+              onclick="enableEdit()"
+              title="Edit Profile"
+              >
+              <i class="bi bi-pencil-fill"></i>
+            </button>
+              
 
-          <button
-            class="icon-btn save-btn"
-            onclick="saveProfile()"
-            title="Save Changes"
-          >
+            <button
+              type="submit"
+              class="icon-btn save-btn"
+              title="Save Changes"
+            >
             <i class="bi bi-check-lg"></i>
-          </button>
+            </button>
+
+          </div>
         </div>
-      </div>
 
       <!-- ==========================
         TOP GRID
       ========================== -->
+        <div class="profile-grid">
+          <!-- PERSONAL INFORMATION -->
 
-      <div class="profile-grid">
-        <!-- PERSONAL INFORMATION -->
+          <div class="card">
+            <div class="section-title personal">
+              <i class="bi bi-person-vcard-fill"></i>
+              <h2>Personal Information</h2>
+            </div>
 
-        <div class="card">
-          <div class="section-title personal">
-            <i class="bi bi-person-vcard-fill"></i>
-            <h2>Personal Information</h2>
+            <div class="info-grid">
+              <div class="field">
+                <span>First Name</span>
+                <input 
+                  name="first_name"
+                  value="<?= $user['first_name']; ?>"
+                  disabled
+                />
+              </div>
+
+              <div class="field">
+                <span>Last Name</span>
+                <input 
+                  name="last_name"
+                  value="<?= $user['last_name']; ?>"
+                  disabled
+                />
+              </div>
+
+              <div class="field">
+                <span>Email Address</span>
+                <input 
+                  name="email"
+                  value="<?= $user['email']; ?>"
+                  disabled
+                />
+              </div>
+
+              <div class="field">
+                <span>Student ID</span>
+                <input 
+                  name="student_id"
+                  value="<?= $user['student_id']; ?>"
+                  disabled
+                />
+              </div>
+            </div>
           </div>
-
-          <div class="info-grid">
-            <div class="field">
-              <span>First Name</span>
-              <input value="Juan" disabled />
-            </div>
-
-            <div class="field">
-              <span>Last Name</span>
-              <input value="Dela Cruz" disabled />
-            </div>
-
-            <div class="field">
-              <span>Email Address</span>
-              <input value="juandelacruz@gmail.com" disabled />
-            </div>
-
-            <div class="field">
-              <span>Student ID</span>
-              <input value="2023-12345" disabled />
-            </div>
-          </div>
-        </div>
 
         <!-- INTERNSHIP DETAILS -->
 
-        <div class="card">
-          <div class="section-title internship">
-            <i class="bi bi-briefcase-fill"></i>
-            <h2>Internship Details</h2>
-          </div>
-
-          <div class="info-grid">
-            <div class="field">
-              <span>Company</span>
-              <input value="ABC Company" disabled />
+          <div class="card">
+            <div class="section-title internship">
+              <i class="bi bi-briefcase-fill"></i>
+              <h2>Internship Details</h2>
             </div>
 
-            <div class="field">
-              <span>Department</span>
-              <input value="IT Department" disabled />
-            </div>
+            <div class="info-grid">
+              <div class="field">
+                <span>Company</span>
+                <input 
+                  name="company"
+                  value="<?= $user['company']; ?>" 
+                  disabled 
+                />
+              </div>
+              <div class="field">
+                <span>Department</span>
+                <input 
+                  name="department"
+                  value="<?= $user['department']; ?>" 
+                  disabled 
+                />
+              </div> 
+            
+              <div class="field">
+                <span>OJT Supervisor</span>
+                <input 
+                  name="supervisor"
+                  value="<?= $user['supervisor']; ?>" 
+                  disabled 
+                />
+              </div>
 
-            <div class="field">
-              <span>OJT Supervisor</span>
-              <input value="Mr. John Doe" disabled />
-            </div>
+              <div class="field">
+                <span>School</span>
+                <input 
+                  name="school"
+                  value="<?= $user['school']; ?>" 
+                  disabled 
+                />
+              </div>
 
-            <div class="field">
-              <span>School</span>
-              <input value="Harvard University" disabled />
-            </div>
-
-            <div class="field full-width">
-              <span>OJT Professor</span>
-              <input value="Prof. Jane Doe" disabled />
+              <div class="field full-width">
+                <span>OJT Professor</span>
+                <input 
+                  name="professor"
+                  value="<?= $user['professor']; ?>" 
+                  disabled 
+                />
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- ==========================
-      INTERNSHIP SETTINGS
-       ========================== -->
+        <!-- ==========================
+        INTERNSHIP SETTINGS
+        ========================== -->
 
-      <div class="card settings-card">
-        <div class="section-title settings">
-          <i class="bi bi-gear-fill"></i>
-          <h2>Internship Settings</h2>
-        </div>
-
-        <div class="settings-grid">
-          <div class="field">
-            <span>Total Required OJT Hours</span>
-            <input type="number" value="500" disabled />
+        <div class="card settings-card">
+          <div class="section-title settings">
+            <i class="bi bi-gear-fill"></i>
+            <h2>Internship Settings</h2>
           </div>
 
-          <div class="field">
-            <span>Expected Hours per Day</span>
-            <input type="number" value="8" disabled />
-          </div>
+          <div class="settings-grid">
+            <div class="field">
+              <span>Total Required OJT Hours</span>
+              <input 
+                type="number"
+                name="required_hours"
+                value="<?= $user['required_hours']; ?>"
+                disabled
+              />
+            </div>
 
-          <div class="field working-days">
-            <span>Working Days</span>
+            <div class="field">
+              <span>Expected Hours per Day</span>
+              <input 
+                type="number"
+                name="hours_per_day"
+                value="<?= $user['hours_per_day']; ?>"
+                disabled
+                />
+            </div>
 
-            <div class="days">
-              <label><input type="checkbox" checked disabled /> Monday</label>
+            <?php
+              $workingDays = explode(",", $user['working_days']);
+            ?>
 
-              <label><input type="checkbox" checked disabled /> Tuesday</label>
+            <div class="field working-days">
+              <span>Working Days</span>
 
-              <label
-                ><input type="checkbox" checked disabled /> Wednesday</label
-              >
+                <div class="days">
 
-              <label><input type="checkbox" checked disabled /> Thursday</label>
+                    <label>
+                        <input
+                            type="checkbox"
+                            name="working_days[]"
+                            value="Monday"
+                            <?= in_array("Monday", $workingDays) ? "checked" : ""; ?>
+                            disabled
+                        />
+                        Monday
+                    </label>
 
-              <label><input type="checkbox" checked disabled /> Friday</label>
+                    <label>
+                        <input
+                            type="checkbox"
+                            name="working_days[]"
+                            value="Tuesday"
+                            <?= in_array("Tuesday", $workingDays) ? "checked" : ""; ?>
+                            disabled
+                        />
+                        Tuesday
+                    </label>
+
+                    <label>
+                        <input
+                            type="checkbox"
+                            name="working_days[]"
+                            value="Wednesday"
+                            <?= in_array("Wednesday", $workingDays) ? "checked" : ""; ?>
+                            disabled
+                        />
+                        Wednesday
+                    </label>
+
+                    <label>
+                        <input
+                            type="checkbox"
+                            name="working_days[]"
+                            value="Thursday"
+                            <?= in_array("Thursday", $workingDays) ? "checked" : ""; ?>
+                            disabled
+                        />
+                        Thursday
+                    </label>
+
+                    <label>
+                        <input
+                            type="checkbox"
+                            name="working_days[]"
+                            value="Friday"
+                            <?= in_array("Friday", $workingDays) ? "checked" : ""; ?>
+                            disabled
+                        />
+                        Friday
+                    </label>
+
+                    <label>
+                        <input
+                            type="checkbox"
+                            name="working_days[]"
+                            value="Saturday"
+                            <?= in_array("Saturday", $workingDays) ? "checked" : ""; ?>
+                            disabled
+                        />
+                        Saturday
+                    </label>
+
+                    <label>
+                        <input
+                            type="checkbox"
+                            name="working_days[]"
+                            value="Sunday"
+                            <?= in_array("Sunday", $workingDays) ? "checked" : ""; ?>
+                            disabled
+                        />
+                        Sunday
+                    </label>
+
+                </div>
+            </div>
+
+            <div class="field">
+              <span>Start Time</span>
+                <input
+                    type="time"
+                    name="start_time"
+                    value="<?= $user['start_time']; ?>"
+                    disabled
+                />
+            </div>
+
+            <div class="field">
+                <span>End Time</span>
+
+                <input
+                    type="time"
+                    name="end_time"
+                    value="<?= $user['end_time']; ?>"
+                    disabled
+                />
+            </div>
+
+            <div class="field">
+              <span>Internship Start Date</span>
+              <input 
+                type="date"
+                name="start_date"
+                value="<?= $user['start_date']; ?>"
+                disabled
+              />
             </div>
           </div>
-
-          <div class="field">
-            <span>Standard Time</span>
-            <input value="8:00 AM – 5:00 PM" disabled />
-          </div>
-
-          <div class="field">
-            <span>Internship Start Date</span>
-            <input type="date" value="2026-01-05" disabled />
-          </div>
         </div>
-      </div>
+      </form>
     </div>
 
     <script>
@@ -1016,28 +1181,27 @@ RESPONSIVE
       });
     </script>
     <script>
-      function enableEdit() {
-        document
-          .querySelectorAll("input")
-          .forEach((input) => (input.disabled = false));
+
+    function enableEdit() {
+
+        const inputs = document.querySelectorAll("#profileForm input");
+
+        inputs.forEach(input => {
+            input.disabled = false;
+        });
 
         document.querySelector(".edit-btn").style.display = "none";
-
         document.querySelector(".save-btn").style.display = "flex";
-      }
+    }
 
-      function saveProfile() {
-        document
-          .querySelectorAll("input")
-          .forEach((input) => (input.disabled = true));
+
+    document.addEventListener("DOMContentLoaded", function(){
 
         document.querySelector(".edit-btn").style.display = "flex";
-
         document.querySelector(".save-btn").style.display = "none";
-      }
 
-      // Default state when page loads
-      document.querySelector(".save-btn").style.display = "none";
+    });
+
     </script>
   </body>
 </html>

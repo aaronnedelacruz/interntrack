@@ -1,3 +1,252 @@
+<?php
+session_start();
+$conn = new mysqli("localhost", "root", "", "interntrack");
+if ($conn->connect_error) {
+    die("Database connection failed: " . $conn->connect_error);
+}
+
+// Check login
+
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php");
+    exit();
+}
+$user_id = $_SESSION['user_id'];
+
+// ===============================
+// GET USER INFORMATION
+// ===============================
+
+$user_sql = "
+SELECT *
+FROM users
+WHERE id = '$user_id'   
+";
+$user_result = $conn->query($user_sql);
+$user = $user_result->fetch_assoc();
+
+// ===============================
+// GET PROJECT LOG INFORMATION
+// ===============================
+
+// Total rendered hours
+
+$hours_sql = "
+SELECT 
+    SUM(hours) AS total_hours,
+    COUNT(DISTINCT work_date) AS active_days
+FROM projects
+WHERE user_id = '$user_id'
+";
+
+$hours_result = $conn->query($hours_sql);
+$hours_data = $hours_result->fetch_assoc();
+$total_hours = $hours_data['total_hours'] ?? 0;
+$total_days = $hours_data['active_days'] ?? 0;
+
+// ===============================
+// DAILY AVERAGE HOURS
+// ===============================
+
+$daily_average = 0;
+if ($total_days > 0) {
+
+    $daily_average = $total_hours / $total_days;
+}
+
+// ===============================
+// CURRENT MONTH HOURS
+// ===============================
+
+$current_month = date("Y-m");
+$month_sql = "
+SELECT SUM(hours) AS month_hours
+FROM projects
+WHERE user_id='$user_id'
+AND DATE_FORMAT(work_date,'%Y-%m')='$current_month'
+";
+$month_result = $conn->query($month_sql);
+$month_data = $month_result->fetch_assoc();
+$month_hours = $month_data['month_hours'] ?? 0;
+
+// ===============================
+// REMAINING WORK DAYS
+// ===============================
+
+$remaining_hours = 
+$user['required_hours'] - $total_hours;
+$remaining_days = 0;
+if ($user['hours_per_day'] > 0) {
+    $remaining_days =
+    $remaining_hours / $user['hours_per_day'];
+}
+
+// ===============================
+// NEXT WORKDAY CALCULATION
+// ===============================
+
+// Your working days from database
+// Example: Monday,Tuesday,Wednesday,Thursday,Friday
+
+$working_days = explode(",", $user['working_days']);
+date_default_timezone_set("Asia/Manila");
+$today = new DateTime();
+$next_workday = clone $today;
+
+while(true){
+    $next_workday->modify("+1 day");
+    $day_name = $next_workday->format("l");
+    if(in_array($day_name, $working_days)){
+        break;
+    }
+}
+
+// ===============================
+// FORMAT VALUES
+// ===============================
+
+$daily_average_display =
+rtrim(rtrim(number_format($daily_average,2), '0'), '.');
+
+$remaining_days_display =
+rtrim(rtrim(number_format($remaining_days,1), '0'), '.');
+
+// ===============================
+// TIME UNTIL NEXT OJT SESSION
+// ===============================
+
+date_default_timezone_set("Asia/Manila");
+
+$next_session = clone $next_workday;
+
+// Set next OJT start time
+$start_time = $user['start_time'];
+
+$next_session->setTime(
+    date("H", strtotime($start_time)),
+    date("i", strtotime($start_time))
+);
+
+$current_time = new DateTime();
+$time_difference = $current_time->diff($next_session);
+
+if ($next_session > $current_time) {
+
+    if ($time_difference->days > 0) {
+        $time_until =
+        $time_difference->days . " days " .
+        $time_difference->h . " hrs";
+
+    } else {
+        $time_until =
+        $time_difference->h . " hrs";
+    }
+} else {
+    $time_until = "Session started";
+
+}
+
+// ===============================
+// HOLIDAYS
+// ===============================
+
+$holidays = [
+    [
+        "name" => "New Year's Day",
+        "date" => "January 1, 2026"
+    ],
+    [
+        "name" => "Chinese New Year",
+        "date" => "February 17, 2026"
+    ],
+    [
+        "name" => "Maundy Thursday",
+        "date" => "April 2, 2026"
+    ],
+    [
+        "name" => "Good Friday",
+        "date" => "April 3, 2026"
+    ],
+    [
+        "name" => "Black Saturday",
+        "date" => "April 4, 2026"
+    ],
+    [
+        "name" => "Araw ng Kagitingan (Day of Valor)",
+        "date" => "April 9, 2026"
+    ],
+    [
+        "name" => "Labor Day",
+        "date" => "May 1, 2026"
+    ],
+    [
+        "name" => "Independence Day",
+        "date" => "June 12, 2026"
+    ],
+    [
+        "name" => "Ninoy Aquino Day",
+        "date" => "August 21, 2026"
+    ],
+    [
+        "name" => "National Heroes Day",
+        "date" => "August 31, 2026"
+    ],
+    [
+        "name" => "All Saints' Day",
+        "date" => "November 1, 2026"
+    ],
+    [
+        "name" => "All Souls' Day",
+        "date" => "November 2, 2026"
+    ],
+    [
+        "name" => "Bonifacio Day",
+        "date" => "November 30, 2026"
+    ],
+    [
+        "name" => "Feast of the Immaculate Conception of Mary",
+        "date" => "December 8, 2026"
+    ],
+    [
+        "name" => "Christmas Eve",
+        "date" => "December 24, 2026"
+    ],
+    [
+        "name" => "Christmas Day",
+        "date" => "December 25, 2026"
+    ],
+    [
+        "name" => "Last Day of the Year",
+        "date" => "December 31, 2026"
+    ]
+];
+
+// ===============================
+// FILTER CURRENT MONTH HOLIDAYS
+// ===============================
+
+$current_month = date("F");
+$current_year = date("Y");
+
+$monthly_holidays = [];
+
+foreach ($holidays as $holiday) {
+
+    $holiday_date = new DateTime($holiday['date'] . " " . $current_year);
+
+    if ($holiday_date->format("F") == $current_month) {
+        $monthly_holidays[] = $holiday;
+    }
+}
+
+// ===============================
+// DEADLINES
+// ===============================
+
+// Temporary until you create a deadlines table
+
+$deadlines = [];
+?>
 <!doctype html>
 <html lang="en">
   <head>
@@ -600,35 +849,35 @@
 
         <ul>
           <li>
-            <a href="dashboard.html">
+            <a href="dashboard.php">
               <i class="bi bi-ui-checks-grid"></i>
               <span>Dashboard</span>
             </a>
           </li>
 
           <li>
-            <a href="projects.html">
+            <a href="projects.php">
               <i class="bi bi-folder2"></i>
               <span>Projects</span>
             </a>
           </li>
 
           <li>
-            <a href="calendar.html" class="active">
+            <a href="calendar.php" class="active">
               <i class="bi bi-calendar-event"></i>
               <span>Calendar</span>
             </a>
           </li>
 
           <li>
-            <a href="reports.html">
+            <a href="reports.php">
               <i class="bi bi-bar-chart-line"></i>
               <span>Reports</span>
             </a>
           </li>
 
           <li>
-            <a href="profile.html">
+            <a href="profile.php">
               <i class="bi bi-person-circle"></i>
               <span>Profile</span>
             </a>
@@ -654,7 +903,9 @@
           <p>Track attendance, schedules, holidays, and deadlines.</p>
         </div>
 
-        <div class="date">📅 March 11, 2026</div>
+        <div class="date">
+          📅 <?= date("F j, Y"); ?>
+        </div>
       </div>
 
       <!-- ATTENDANCE SUMMARY -->
@@ -662,22 +913,30 @@
       <div class="summary">
         <div class="card daily-card">
           <h3>Daily Average Hours</h3>
-          <div class="number">8</div>
+          <div class="number">
+            <?= $daily_average_display; ?>
+          </div>
         </div>
 
         <div class="card active-card">
           <h3>Total Days Active</h3>
-          <div class="number">45</div>
+          <div class="number">
+            <?= $total_days; ?>
+        </div>
         </div>
 
         <div class="card month-card">
           <h3>Total Hours This Month</h3>
-          <div class="number">56</div>
+          <div class="number">
+            <?= rtrim(rtrim(number_format($month_hours, 2), '0'), '.'); ?>
+          </div>
         </div>
 
         <div class="card remaining-card">
           <h3>Remaining Work Days</h3>
-          <div class="number">17.5</div>
+          <div class="number">
+            <?= $remaining_days_display = rtrim(rtrim(number_format($remaining_days, 2), '0'), '.'); ?>
+          </div>
         </div>
       </div>
 
@@ -692,17 +951,23 @@
 
             <div class="info-row">
               <span>Next OJT Day</span>
-              <strong id="next-day">--</strong>
+              <strong>
+                <?= $next_workday->format("D, F j, Y"); ?>
+              </strong>
             </div>
 
             <div class="info-row">
               <span>Expected Hours</span>
-              <strong id="expected-hours">--</strong>
+              <strong>
+                <?= $user['hours_per_day']; ?> hrs
+              </strong>
             </div>
 
             <div class="info-row">
               <span>Time Until Session</span>
-              <strong id="countdown">--</strong>
+              <strong>
+                <?= $time_until; ?>
+              </strong>
             </div>
           </div>
 
@@ -717,17 +982,27 @@
           <div class="event-section">
             <h2>Holidays</h2>
 
-            <div class="info-row">
-              <span>Good Friday</span>
-              <strong>April 3, 2026</strong>
-            </div>
+            <?php if(count($monthly_holidays) > 0): ?>
+              <?php foreach($monthly_holidays as $holiday): ?>
+                <div class="info-row">
+                  <span>
+                    <?= $holiday['name']; ?>
+                  </span>
 
-            <div class="info-row">
-              <span>Araw ng Kagitingan</span>
-              <strong>April 9, 2026</strong>
+                  <strong>
+                    <?= $holiday['date']; ?>
+                  </strong>
+                </div>
+              <?php endforeach; ?>
+
+              <?php else: ?>
+                <div class="info-row empty">
+                  <span>No holidays this month.</span>
+                </div>
+              <?php endif; ?>
             </div>
           </div>
-        </div>
+        
         <!-- Calendar -->
         <div class="calendar-card">
           <div class="month">

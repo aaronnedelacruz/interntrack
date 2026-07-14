@@ -1,3 +1,30 @@
+<?php
+
+session_start();
+
+$conn = new mysqli("localhost", "root", "", "interntrack");
+
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php");
+    exit();
+}
+
+$user_id = $_SESSION['user_id'];
+
+$result = $conn->query("SELECT * FROM users WHERE id = '$user_id'");
+$user = $result->fetch_assoc();
+
+$projects = $conn->query("
+    SELECT *
+    FROM projects
+    WHERE user_id = '$user_id'
+    ORDER BY work_date DESC, start_time DESC
+");
+?>
 <!doctype html>
 <html lang="en">
   <head>
@@ -368,6 +395,124 @@
       }
 
       /* ==========================
+      NEW LOG MODAL
+      ========================== */
+
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.45);
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+      }
+
+      .modal-content {
+        background: #fff;
+
+        width: 600px;
+        max-width: 90%;
+
+        padding: 30px;
+
+        border-radius: 16px;
+
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+      }
+
+      .modal-header {
+        display: flex;
+
+        justify-content: space-between;
+        align-items: center;
+
+        margin-bottom: 25px;
+      }
+
+      .modal-header h2 {
+        margin: 0;
+      }
+
+      .close {
+        font-size: 30px;
+
+        cursor: pointer;
+
+        font-weight: bold;
+      }
+
+      .input-group {
+        display: flex;
+
+        flex-direction: column;
+
+        margin-bottom: 18px;
+      }
+
+      .input-group label {
+        font-weight: 600;
+
+        margin-bottom: 8px;
+      }
+
+      .input-group input,
+      .input-group textarea {
+        width: 100%;
+
+        padding: 12px;
+
+        border: 1px solid #ddd;
+
+        border-radius: 10px;
+
+        font-size: 15px;
+      }
+
+      .input-group textarea {
+        resize: vertical;
+      }
+
+      .time-row {
+        display: flex;
+
+        gap: 20px;
+      }
+
+      .time-row .input-group {
+        flex: 1;
+      }
+
+      .save-log-btn {
+        width: 100%;
+
+        padding: 14px;
+
+        border: none;
+
+        border-radius: 10px;
+
+        background: #0A9396;
+
+        color: white;
+
+        font-size: 16px;
+
+        font-weight: 600;
+
+        cursor: pointer;
+
+        transition: 0.3s;
+      }
+
+      .save-log-btn:hover {
+        background: #087f81;
+      }
+
+      /* ==========================
    TABLE TOOLBAR
 ========================== */
 
@@ -486,6 +631,20 @@
 
       .filter-sort {
         flex: 0 0 180px;
+      }
+
+      /* ==========================
+      SUCCESS MESSAGE
+      ========================== */
+
+      .success-message {
+          background: #d1fae5;
+          color: #065f46;
+          padding: 12px 16px;
+          margin: 20px 0;
+          border-radius: 10px;
+          border-left: 5px solid #10b981;
+          font-weight: 600;
       }
 
       /* ==========================
@@ -712,35 +871,35 @@
 
         <ul>
           <li>
-            <a href="dashboard.html">
+            <a href="dashboard.php">
               <i class="bi bi-ui-checks-grid"></i>
               <span>Dashboard</span>
             </a>
           </li>
 
           <li>
-            <a href="projects.html" class="active">
+            <a href="projects.php" class="active">
               <i class="bi bi-folder2"></i>
               <span>Projects</span>
             </a>
           </li>
 
           <li>
-            <a href="calendar.html">
+            <a href="calendar.php">
               <i class="bi bi-calendar-event"></i>
               <span>Calendar</span>
             </a>
           </li>
 
           <li>
-            <a href="reports.html">
+            <a href="reports.php">
               <i class="bi bi-bar-chart-line"></i>
               <span>Reports</span>
             </a>
           </li>
 
           <li>
-            <a href="profile.html">
+            <a href="profile.php">
               <i class="bi bi-person-circle"></i>
               <span>Profile</span>
             </a>
@@ -769,13 +928,15 @@
           <p>Manage internship projects and work sessions.</p>
         </div>
 
-        <div class="date">📅 March 11, 2026</div>
+        <div class="date">
+          📅 <?= date("F j, Y"); ?>
+        </div>
       </div>
 
       <!-- QUICK ACTIONS -->
 
       <div class="quick-actions">
-        <button class="quick-btn project-btn">
+        <button class="quick-btn project-btn" onclick="openModal()">
           <span>+</span>
           <span>New Log</span>
         </button>
@@ -785,6 +946,101 @@
           <span>Start Timer</span>
         </button>
       </div>
+
+      <div id="logModal" class="modal">
+        <div class="modal-content">
+
+          <div class="modal-header">
+            <h2>New Work Log</h2>
+            <span class="close" onclick="closeModal()">&times;</span>
+          </div>
+
+          <form action="projects_add.php" method="POST">
+
+            <div class="input-group">
+              <label>Project Name</label>
+              <input
+                type="text"
+                name="project_name"
+                required
+              >
+            </div>
+
+            <div class="input-group">
+              <label>Activity</label>
+
+              <textarea
+                name="activity"
+                rows="4"
+                required
+              ></textarea>
+            </div>
+
+            <div class="input-group">
+              <label>Date</label>
+
+              <input
+                type="date"
+                id="work_date"
+                name="work_date"
+                required
+              >
+            </div>
+
+            <div class="time-row">
+
+              <div class="input-group">
+                <label>Start Time</label>
+
+                <input
+                  type="time"
+                  id="start_time"
+                  name="start_time"
+                  required
+                >
+              </div>
+
+              <div class="input-group">
+                <label>End Time</label>
+
+                <input
+                  type="time"
+                  id="end_time"
+                  name="end_time"
+                  required
+                >
+              </div>
+
+            </div>
+
+            <div class="input-group">
+              <label>Hours</label>
+
+              <input
+                  type="number"
+                  id="hours"
+                  name="hours"
+                  step="0.25"
+                  readonly
+              >
+            </div>
+
+            <button class="save-log-btn">
+              Save Log
+            </button>
+
+          </form>
+        </div>
+      </div>
+
+      <!-- SUCCESS MESSAGE -->
+      <?php if (isset($_GET['success'])): ?>
+          <div class="success-message">
+            <i class="bi bi-check-circle-fill"></i>
+             Work log saved successfully.
+          </div>
+      <?php endif; ?>
+
       <!-- TABLE -->
 
       <div class="table-card">
@@ -835,499 +1091,26 @@
           </thead>
 
           <tbody>
+            <?php while($row = $projects->fetch_assoc()): ?>
             <tr>
-              <td>Library Management System</td>
-              <td>Conducted final system testing.</td>
-              <td>8</td>
-              <td>March 10, 2026 • 8:00 AM – 5:00 PM</td>
-              <td>
-                <i class="bi bi-pencil-square"></i>
-                <i class="bi bi-trash"></i>
-              </td>
-            </tr>
+                <td><?= htmlspecialchars($row['project_name']); ?></td>
+                <td><?= htmlspecialchars($row['activity']); ?></td>
+                <td><?= $row['hours']; ?></td>
+                <td>
+                    <?= date("F j, Y", strtotime($row['work_date'])); ?>
+                    •
+                    <?= date("g:i A", strtotime($row['start_time'])); ?>
+                    –
+                    <?= date("g:i A", strtotime($row['end_time'])); ?>
+                </td>
 
-            <tr>
-              <td>Library Management System</td>
-              <td>Updated library system documentation.</td>
-              <td>8</td>
-              <td>March 9, 2026 • 8:00 AM – 5:00 PM</td>
-              <td>
-                <i class="bi bi-pencil-square"></i>
-                <i class="bi bi-trash"></i>
-              </td>
+                <td>
+                    <i class="bi bi-pencil-square"></i>
+                    <i class="bi bi-trash"></i>
+                </td>
             </tr>
+            <?php endwhile; ?>
 
-            <tr>
-              <td>Library Management System</td>
-              <td>Verified overdue book reports.</td>
-              <td>8</td>
-              <td>March 6, 2026 • 8:00 AM – 5:00 PM</td>
-              <td>
-                <i class="bi bi-pencil-square"></i>
-                <i class="bi bi-trash"></i>
-              </td>
-            </tr>
-
-            <tr>
-              <td>Library Management System</td>
-              <td>Tested return transaction process.</td>
-              <td>8</td>
-              <td>March 5, 2026 • 8:00 AM – 5:00 PM</td>
-              <td>
-                <i class="bi bi-pencil-square"></i>
-                <i class="bi bi-trash"></i>
-              </td>
-            </tr>
-
-            <tr>
-              <td>Library Management System</td>
-              <td>Improved borrowing transaction form.</td>
-              <td>8</td>
-              <td>March 4, 2026 • 8:00 AM – 5:00 PM</td>
-              <td>
-                <i class="bi bi-pencil-square"></i>
-                <i class="bi bi-trash"></i>
-              </td>
-            </tr>
-
-            <tr>
-              <td>Library Management System</td>
-              <td>Updated book inventory records.</td>
-              <td>8</td>
-              <td>March 3, 2026 • 8:00 AM – 5:00 PM</td>
-              <td>
-                <i class="bi bi-pencil-square"></i>
-                <i class="bi bi-trash"></i>
-              </td>
-            </tr>
-
-            <tr>
-              <td>Payroll System</td>
-              <td>Finalized payroll documentation.</td>
-              <td>8</td>
-              <td>March 2, 2026 • 8:00 AM – 5:00 PM</td>
-              <td>
-                <i class="bi bi-pencil-square"></i>
-                <i class="bi bi-trash"></i>
-              </td>
-            </tr>
-
-            <tr>
-              <td>Payroll System</td>
-              <td>Assisted in payslip generation testing.</td>
-              <td>8</td>
-              <td>February 27, 2026 • 8:00 AM – 5:00 PM</td>
-              <td>
-                <i class="bi bi-pencil-square"></i>
-                <i class="bi bi-trash"></i>
-              </td>
-            </tr>
-
-            <tr>
-              <td>Payroll System</td>
-              <td>Corrected payroll validation issues.</td>
-              <td>8</td>
-              <td>February 26, 2026 • 8:00 AM – 5:00 PM</td>
-              <td>
-                <i class="bi bi-pencil-square"></i>
-                <i class="bi bi-trash"></i>
-              </td>
-            </tr>
-
-            <tr>
-              <td>Payroll System</td>
-              <td>Verified deduction computations.</td>
-              <td>8</td>
-              <td>February 25, 2026 • 8:00 AM – 5:00 PM</td>
-              <td>
-                <i class="bi bi-pencil-square"></i>
-                <i class="bi bi-trash"></i>
-              </td>
-            </tr>
-
-            <tr>
-              <td>Payroll System</td>
-              <td>Updated payroll report template.</td>
-              <td>8</td>
-              <td>February 24, 2026 • 8:00 AM – 5:00 PM</td>
-              <td>
-                <i class="bi bi-pencil-square"></i>
-                <i class="bi bi-trash"></i>
-              </td>
-            </tr>
-
-            <tr>
-              <td>Payroll System</td>
-              <td>Tested payroll calculations.</td>
-              <td>8</td>
-              <td>February 23, 2026 • 8:00 AM – 5:00 PM</td>
-              <td>
-                <i class="bi bi-pencil-square"></i>
-                <i class="bi bi-trash"></i>
-              </td>
-            </tr>
-
-            <tr>
-              <td>Payroll System</td>
-              <td>Reviewed payroll computation logic.</td>
-              <td>8</td>
-              <td>February 20, 2026 • 8:00 AM – 5:00 PM</td>
-              <td>
-                <i class="bi bi-pencil-square"></i>
-                <i class="bi bi-trash"></i>
-              </td>
-            </tr>
-
-            <tr>
-              <td>HRIS</td>
-              <td>Conducted final module validation.</td>
-              <td>8</td>
-              <td>February 19, 2026 • 8:00 AM – 5:00 PM</td>
-              <td>
-                <i class="bi bi-pencil-square"></i>
-                <i class="bi bi-trash"></i>
-              </td>
-            </tr>
-
-            <tr>
-              <td>HRIS</td>
-              <td>Updated HR documentation.</td>
-              <td>8</td>
-              <td>February 18, 2026 • 8:00 AM – 5:00 PM</td>
-              <td>
-                <i class="bi bi-pencil-square"></i>
-                <i class="bi bi-trash"></i>
-              </td>
-            </tr>
-
-            <tr>
-              <td>HRIS</td>
-              <td>Assisted in report generation testing.</td>
-              <td>8</td>
-              <td>February 17, 2026 • 8:00 AM – 5:00 PM</td>
-              <td>
-                <i class="bi bi-pencil-square"></i>
-                <i class="bi bi-trash"></i>
-              </td>
-            </tr>
-
-            <tr>
-              <td>HRIS</td>
-              <td>Verified attendance records.</td>
-              <td>8</td>
-              <td>February 16, 2026 • 8:00 AM – 5:00 PM</td>
-              <td>
-                <i class="bi bi-pencil-square"></i>
-                <i class="bi bi-trash"></i>
-              </td>
-            </tr>
-
-            <tr>
-              <td>HRIS</td>
-              <td>Fixed employee search function.</td>
-              <td>8</td>
-              <td>February 13, 2026 • 8:00 AM – 5:00 PM</td>
-              <td>
-                <i class="bi bi-pencil-square"></i>
-                <i class="bi bi-trash"></i>
-              </td>
-            </tr>
-
-            <tr>
-              <td>HRIS</td>
-              <td>Improved attendance dashboard.</td>
-              <td>8</td>
-              <td>February 12, 2026 • 8:00 AM – 5:00 PM</td>
-              <td>
-                <i class="bi bi-pencil-square"></i>
-                <i class="bi bi-trash"></i>
-              </td>
-            </tr>
-
-            <tr>
-              <td>HRIS</td>
-              <td>Tested leave request workflow.</td>
-              <td>8</td>
-              <td>February 11, 2026 • 8:00 AM – 5:00 PM</td>
-              <td>
-                <i class="bi bi-pencil-square"></i>
-                <i class="bi bi-trash"></i>
-              </td>
-            </tr>
-
-            <tr>
-              <td>HRIS</td>
-              <td>Organized employee records.</td>
-              <td>8</td>
-              <td>February 10, 2026 • 8:00 AM – 5:00 PM</td>
-              <td>
-                <i class="bi bi-pencil-square"></i>
-                <i class="bi bi-trash"></i>
-              </td>
-            </tr>
-
-            <tr>
-              <td>HRIS</td>
-              <td>Updated employee profile module.</td>
-              <td>8</td>
-              <td>February 9, 2026 • 8:00 AM – 5:00 PM</td>
-              <td>
-                <i class="bi bi-pencil-square"></i>
-                <i class="bi bi-trash"></i>
-              </td>
-            </tr>
-
-            <tr>
-              <td>POS System</td>
-              <td>Performed regression testing.</td>
-              <td>8</td>
-              <td>February 6, 2026 • 8:00 AM – 5:00 PM</td>
-              <td>
-                <i class="bi bi-pencil-square"></i>
-                <i class="bi bi-trash"></i>
-              </td>
-            </tr>
-
-            <tr>
-              <td>POS System</td>
-              <td>Fixed transaction validation issues.</td>
-              <td>8</td>
-              <td>February 5, 2026 • 8:00 AM – 5:00 PM</td>
-              <td>
-                <i class="bi bi-pencil-square"></i>
-                <i class="bi bi-trash"></i>
-              </td>
-            </tr>
-
-            <tr>
-              <td>POS System</td>
-              <td>Improved barcode scanning workflow.</td>
-              <td>8</td>
-              <td>February 4, 2026 • 8:00 AM – 5:00 PM</td>
-              <td>
-                <i class="bi bi-pencil-square"></i>
-                <i class="bi bi-trash"></i>
-              </td>
-            </tr>
-
-            <tr>
-              <td>POS System</td>
-              <td>Verified daily sales reports.</td>
-              <td>8</td>
-              <td>February 3, 2026 • 8:00 AM – 5:00 PM</td>
-              <td>
-                <i class="bi bi-pencil-square"></i>
-                <i class="bi bi-trash"></i>
-              </td>
-            </tr>
-
-            <tr>
-              <td>POS System</td>
-              <td>Assisted in payment module testing.</td>
-              <td>8</td>
-              <td>February 2, 2026 • 8:00 AM – 5:00 PM</td>
-              <td>
-                <i class="bi bi-pencil-square"></i>
-                <i class="bi bi-trash"></i>
-              </td>
-            </tr>
-
-            <tr>
-              <td>POS System</td>
-              <td>Updated customer transaction records.</td>
-              <td>8</td>
-              <td>January 28, 2026 • 8:00 AM – 5:00 PM</td>
-              <td>
-                <i class="bi bi-pencil-square"></i>
-                <i class="bi bi-trash"></i>
-              </td>
-            </tr>
-
-            <tr>
-              <td>POS System</td>
-              <td>Corrected receipt formatting.</td>
-              <td>8</td>
-              <td>January 27, 2026 • 8:00 AM – 5:00 PM</td>
-              <td>
-                <i class="bi bi-pencil-square"></i>
-                <i class="bi bi-trash"></i>
-              </td>
-            </tr>
-
-            <tr>
-              <td>POS System</td>
-              <td>Tested sales transaction process.</td>
-              <td>8</td>
-              <td>January 26, 2026 • 8:00 AM – 5:00 PM</td>
-              <td>
-                <i class="bi bi-pencil-square"></i>
-                <i class="bi bi-trash"></i>
-              </td>
-            </tr>
-
-            <tr>
-              <td>POS System</td>
-              <td>Improved cashier interface layout.</td>
-              <td>8</td>
-              <td>January 23, 2026 • 8:00 AM – 5:00 PM</td>
-              <td>
-                <i class="bi bi-pencil-square"></i>
-                <i class="bi bi-trash"></i>
-              </td>
-            </tr>
-
-            <tr>
-              <td>POS System</td>
-              <td>Enhanced product lookup feature.</td>
-              <td>8</td>
-              <td>January 22, 2026 • 8:00 AM – 5:00 PM</td>
-              <td>
-                <i class="bi bi-pencil-square"></i>
-                <i class="bi bi-trash"></i>
-              </td>
-            </tr>
-            <tr>
-              <td>Inventory Management</td>
-              <td>Finalized inventory feature revisions.</td>
-              <td>8</td>
-              <td>January 21, 2026 • 8:00 AM – 5:00 PM</td>
-              <td>
-                <i class="bi bi-pencil-square"></i>
-                <i class="bi bi-trash"></i>
-              </td>
-            </tr>
-
-            <tr>
-              <td>Inventory Management</td>
-              <td>Reviewed inventory module improvements.</td>
-              <td>8</td>
-              <td>January 20, 2026 • 8:00 AM – 5:00 PM</td>
-              <td>
-                <i class="bi bi-pencil-square"></i>
-                <i class="bi bi-trash"></i>
-              </td>
-            </tr>
-
-            <tr>
-              <td>Inventory Management</td>
-              <td>Assisted in user acceptance testing.</td>
-              <td>8</td>
-              <td>January 19, 2026 • 8:00 AM – 5:00 PM</td>
-              <td>
-                <i class="bi bi-pencil-square"></i>
-                <i class="bi bi-trash"></i>
-              </td>
-            </tr>
-
-            <tr>
-              <td>Inventory Management</td>
-              <td>Documented inventory workflow.</td>
-              <td>8</td>
-              <td>January 16, 2026 • 8:00 AM – 5:00 PM</td>
-              <td>
-                <i class="bi bi-pencil-square"></i>
-                <i class="bi bi-trash"></i>
-              </td>
-            </tr>
-
-            <tr>
-              <td>Inventory Management</td>
-              <td>Performed system debugging.</td>
-              <td>8</td>
-              <td>January 15, 2026 • 8:00 AM – 5:00 PM</td>
-              <td>
-                <i class="bi bi-pencil-square"></i>
-                <i class="bi bi-trash"></i>
-              </td>
-            </tr>
-
-            <tr>
-              <td>Inventory Management</td>
-              <td>Validated inventory reports.</td>
-              <td>8</td>
-              <td>January 14, 2026 • 8:00 AM – 5:00 PM</td>
-              <td>
-                <i class="bi bi-pencil-square"></i>
-                <i class="bi bi-trash"></i>
-              </td>
-            </tr>
-
-            <tr>
-              <td>Inventory Management</td>
-              <td>Added item category management.</td>
-              <td>8</td>
-              <td>January 13, 2026 • 8:00 AM – 5:00 PM</td>
-              <td>
-                <i class="bi bi-pencil-square"></i>
-                <i class="bi bi-trash"></i>
-              </td>
-            </tr>
-
-            <tr>
-              <td>Inventory Management</td>
-              <td>Improved inventory search function.</td>
-              <td>8</td>
-              <td>January 12, 2026 • 8:00 AM – 5:00 PM</td>
-              <td>
-                <i class="bi bi-pencil-square"></i>
-                <i class="bi bi-trash"></i>
-              </td>
-            </tr>
-
-            <tr>
-              <td>Inventory Management</td>
-              <td>Tested inventory transaction forms.</td>
-              <td>8</td>
-              <td>January 9, 2026 • 8:00 AM – 5:00 PM</td>
-              <td>
-                <i class="bi bi-pencil-square"></i>
-                <i class="bi bi-trash"></i>
-              </td>
-            </tr>
-
-            <tr>
-              <td>Inventory Management</td>
-              <td>Designed inventory report layout.</td>
-              <td>8</td>
-              <td>January 8, 2026 • 8:00 AM – 5:00 PM</td>
-              <td>
-                <i class="bi bi-pencil-square"></i>
-                <i class="bi bi-trash"></i>
-              </td>
-            </tr>
-
-            <tr>
-              <td>Inventory Management</td>
-              <td>Fixed stock quantity validation.</td>
-              <td>8</td>
-              <td>January 7, 2026 • 8:00 AM – 5:00 PM</td>
-              <td>
-                <i class="bi bi-pencil-square"></i>
-                <i class="bi bi-trash"></i>
-              </td>
-            </tr>
-
-            <tr>
-              <td>Inventory Management</td>
-              <td>Updated product database records.</td>
-              <td>8</td>
-              <td>January 6, 2026 • 8:00 AM – 5:00 PM</td>
-              <td>
-                <i class="bi bi-pencil-square"></i>
-                <i class="bi bi-trash"></i>
-              </td>
-            </tr>
-
-            <tr>
-              <td>Inventory Management</td>
-              <td>Assisted in inventory module development.</td>
-              <td>8</td>
-              <td>January 5, 2026 • 8:00 AM – 5:00 PM</td>
-              <td>
-                <i class="bi bi-pencil-square"></i>
-                <i class="bi bi-trash"></i>
-              </td>
-            </tr>
           </tbody>
         </table>
       </div>
@@ -1382,5 +1165,70 @@
         allowInput: true,
       });
     </script>
+    <script>
+      const start = document.querySelector("[name='start_time']");
+      const end = document.querySelector("[name='end_time']");
+      const hours = document.getElementById("hours");
+
+      function calculateHours() {
+
+      if (!start.value || !end.value) return;
+
+      const startDate = new Date("2000-01-01T" + start.value);
+      const endDate = new Date("2000-01-01T" + end.value);
+
+      let diff = (endDate - startDate) / (1000 * 60 * 60);
+
+      if (diff < 0) diff += 24; // Handles overnight shifts
+
+      hours.value = diff.toFixed(2);
+      }
+
+      start.addEventListener("change", calculateHours);
+      end.addEventListener("change", calculateHours);
+    </script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+          document.getElementById("work_date").valueAsDate = new Date();
+      });
+    </script>
+    <script>
+      function openModal() {
+        document.getElementById("logModal").style.display = "flex";
+
+        // Today's date
+        document.getElementById("work_date").valueAsDate = new Date();
+
+        // Default work schedule from profile
+        document.getElementById("start_time").value = "<?= $user['start_time']; ?>";
+        document.getElementById("end_time").value = "<?= $user['end_time']; ?>";
+
+        calculateHours();
+      }
+
+      function closeModal() {
+          document.getElementById("logModal").style.display = "none";
+      }
+      </script>
+      <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const successMessage = document.querySelector(".success-message");
+
+            if (successMessage) {
+
+                setTimeout(() => {
+                    successMessage.style.transition = "opacity 0.5s ease";
+                    successMessage.style.opacity = "0";
+
+                    setTimeout(() => {
+                        successMessage.remove();
+                    }, 500);
+
+                }, 5000); // 5 seconds
+            }
+
+        });
+      </script>
   </body>
 </html>

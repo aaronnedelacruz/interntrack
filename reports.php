@@ -1,3 +1,363 @@
+<?php
+
+// 1. SESSION + DATABASE CONNECTION
+session_start();
+
+$conn = new mysqli("localhost", "root", "", "interntrack");
+
+if ($conn->connect_error) {
+    die("Database connection failed");
+}
+
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php");
+    exit();
+}
+
+$user_id = $_SESSION['user_id'];
+
+
+// 2. GET USER DATA
+
+$user_sql = "
+SELECT *
+FROM users
+WHERE id = '$user_id'
+";
+
+$user_result = $conn->query($user_sql);
+$user = $user_result->fetch_assoc();
+
+
+// 3. GET COMPLETED HOURS
+
+$hours_sql = "
+SELECT SUM(hours) AS total_hours
+FROM projects
+WHERE user_id = '$user_id'
+";
+
+$hours_result = $conn->query($hours_sql);
+$hours_data = $hours_result->fetch_assoc();
+
+$total_hours = $hours_data['total_hours'] ?? 0;
+
+
+// 4. WORKING DAYS
+
+$working_days = explode(",", $user['working_days']);
+
+date_default_timezone_set("Asia/Manila");
+
+$today = new DateTime();
+
+
+// ===============================
+// 5. REPORT SUMMARY COMPUTATION
+// ===============================
+
+$completed_hours = $total_hours;
+
+$required_hours = $user['required_hours'];
+
+$remaining_hours = max(
+    $required_hours - $completed_hours,
+    0
+);
+
+
+// Progress
+
+$progress = 0;
+
+if ($required_hours > 0) {
+    $progress = ($completed_hours / $required_hours) * 100;
+}
+
+$progress_display = round($progress) . "%";
+
+
+// Expected Completion
+
+$completion_date = clone $today;
+
+$hours_left = $remaining_hours;
+
+
+while($hours_left > 0){
+
+    $completion_date->modify("+1 day");
+
+    $day_name = $completion_date->format("l");
+
+    if(in_array($day_name, $working_days)){
+
+        $hours_left -= $user['hours_per_day'];
+
+    }
+}
+
+$completion_date_display = $completion_date->format("F j, Y");
+
+// ===============================
+// FORMAT DISPLAY VALUES
+// ===============================
+
+$completed_hours_display = rtrim(
+    rtrim(number_format($completed_hours, 2), '0'),
+    '.'
+);
+
+$remaining_hours_display = rtrim(
+    rtrim(number_format($remaining_hours, 2), '0'),
+    '.'
+);
+
+// ===============================
+// WEEKLY HOURS DATA
+// ===============================
+
+$weekly_hours = [
+    "Mon" => 0,
+    "Tue" => 0,
+    "Wed" => 0,
+    "Thu" => 0,
+    "Fri" => 0,
+    "Sat" => 0,
+    "Sun" => 0
+];
+
+$week_start = new DateTime("monday this week");
+$week_end = new DateTime("sunday this week");
+
+$weekly_sql = "
+SELECT
+    DAYNAME(work_date) AS day_name,
+    SUM(hours) AS total_hours
+FROM projects
+WHERE user_id = '$user_id'
+AND work_date BETWEEN 
+'{$week_start->format('Y-m-d')}'
+AND
+'{$week_end->format('Y-m-d')}'
+GROUP BY work_date
+";
+
+$weekly_result = $conn->query($weekly_sql);
+
+
+while($row = $weekly_result->fetch_assoc()){
+
+    $day = substr($row['day_name'], 0, 3);
+
+    $weekly_hours[$day] = $row['total_hours'];
+}
+
+// ===============================
+// MONTHLY HOURS DATA
+// ===============================
+
+$monthly_hours = [
+    "Jan" => 0,
+    "Feb" => 0,
+    "Mar" => 0,
+    "Apr" => 0,
+    "May" => 0,
+    "Jun" => 0,
+    "Jul" => 0,
+    "Aug" => 0,
+    "Sep" => 0,
+    "Oct" => 0,
+    "Nov" => 0,
+    "Dec" => 0
+];
+
+$monthly_breakdown = [];
+
+$monthly_sql = "
+SELECT
+    MONTH(work_date) AS month_number,
+    DATE_FORMAT(work_date, '%b') AS month,
+    MONTHNAME(work_date) AS month_name,
+    SUM(hours) AS total_hours,
+    COUNT(DISTINCT work_date) AS sessions
+FROM projects
+WHERE user_id = '$user_id'
+GROUP BY YEAR(work_date), MONTH(work_date)
+ORDER BY YEAR(work_date), MONTH(work_date)
+";
+
+$monthly_result = $conn->query($monthly_sql);
+
+while ($row = $monthly_result->fetch_assoc()) {
+
+    // For Monthly Chart
+    $monthly_hours[$row['month']] = (float)$row['total_hours'];
+
+    // For Monthly Breakdown Table
+    $monthly_breakdown[] = [
+        "month" => $row['month_name'],
+        "hours" => (float)$row['total_hours'],
+        "sessions" => (int)$row['sessions']
+    ];
+}
+
+$monthly_result = $conn->query($monthly_sql);
+
+while ($row = $monthly_result->fetch_assoc()) {
+    $monthly_hours[$row['month']] = $row['total_hours'];
+}
+
+// ===============================
+// WEEKLY BREAKDOWN
+// ===============================
+
+$weekly_breakdown = [];
+
+$weekly_breakdown_sql = "
+SELECT
+    YEAR(work_date) AS year,
+    WEEK(work_date, 1) AS week_number,
+    MIN(work_date) AS week_start,
+    MAX(work_date) AS week_end,
+    SUM(hours) AS total_hours,
+    COUNT(DISTINCT work_date) AS sessions
+FROM projects
+WHERE user_id = '$user_id'
+GROUP BY YEAR(work_date), WEEK(work_date,1)
+ORDER BY YEAR(work_date), WEEK(work_date,1)
+";
+
+$weekly_breakdown_result = $conn->query($weekly_breakdown_sql);
+
+$week = 1;
+
+while ($row = $weekly_breakdown_result->fetch_assoc()) {
+
+    $weekly_breakdown[] = [
+        "week" => "Week " . $week .
+            " (" .
+            date("M j, Y", strtotime($row['week_start'])) .
+            " - " .
+            date("M j, Y", strtotime($row['week_end'])) .
+            ")",
+
+        "hours" => (float)$row['total_hours'],
+
+        "sessions" => (int)$row['sessions']
+    ];
+
+    $week++;
+}
+
+// ===============================
+// PROJECT DISTRIBUTION
+// ===============================
+
+$project_distribution = [];
+
+$project_sql = "
+SELECT
+    project_name,
+    SUM(hours) AS total_hours
+FROM projects
+WHERE user_id = '$user_id'
+GROUP BY project_name
+ORDER BY total_hours DESC
+";
+
+$project_result = $conn->query($project_sql);
+
+$colors = [
+    "#005669",
+    "#0A9396",
+    "#7C974B",
+    "#EE9B00",
+    "#F7CA7A",
+    "#AE5A41",
+    "#7E57C2",
+    "#26A69A",
+    "#5C6BC0",
+    "#FF7043"
+];
+
+$colorIndex = 0;
+
+while ($row = $project_result->fetch_assoc()) {
+
+    $hours = (float)$row['total_hours'];
+
+    $percentage = $completed_hours > 0
+        ? round(($hours / $completed_hours) * 100, 1)
+        : 0;
+
+    $project_distribution[] = [
+        "name" => $row['project_name'],
+        "hours" => $hours,
+        "percent" => $percentage,
+        "color" => $colors[$colorIndex % count($colors)]
+    ];
+
+    $colorIndex++;
+}
+
+// ===============================
+// WEEKLY COMPLETION PLAN
+// ===============================
+
+$weekly_plan = [];
+
+if ($remaining_hours > 0) {
+
+    $hours_per_day = (float)$user['hours_per_day'];
+
+    $working_days_per_week = count($working_days);
+
+    $max_weekly_hours = $hours_per_day * $working_days_per_week;
+
+    $hours_left = $remaining_hours;
+
+    while ($hours_left > 0) {
+
+        $target = min($max_weekly_hours, $hours_left);
+
+        $weekly_plan[] = round($target, 2);
+
+        $hours_left -= $target;
+    }
+
+}
+
+$balanced_plan = [];
+
+if ($remaining_hours > 0) {
+
+    $weeks_remaining = count($weekly_plan);
+
+    $base = floor(($remaining_hours / $weeks_remaining) * 100) / 100;
+
+    $remaining = $remaining_hours;
+
+    for ($i = 0; $i < $weeks_remaining; $i++) {
+
+        if ($i == $weeks_remaining - 1) {
+
+            $target = round($remaining,2);
+
+        } else {
+
+            $target = $base;
+
+        }
+
+        $balanced_plan[] = $target;
+
+        $remaining -= $target;
+    }
+
+}
+
+?>
 <!doctype html>
 <html lang="en">
   <head>
@@ -466,7 +826,7 @@
 ========================================== */
 
       .monthly-bar {
-        width: clamp(80px, 7vw, 300px);
+        width: clamp(40px, 4vw, 100px);
         background: linear-gradient(180deg, #ee9b00, #ca6702);
       }
 
@@ -960,35 +1320,35 @@
 
         <ul>
           <li>
-            <a href="dashboard.html">
+            <a href="dashboard.php">
               <i class="bi bi-ui-checks-grid"></i>
               <span>Dashboard</span>
             </a>
           </li>
 
           <li>
-            <a href="projects.html">
+            <a href="projects.php">
               <i class="bi bi-folder2"></i>
               <span>Projects</span>
             </a>
           </li>
 
           <li>
-            <a href="calendar.html">
+            <a href="calendar.php">
               <i class="bi bi-calendar-event"></i>
               <span>Calendar</span>
             </a>
           </li>
 
           <li>
-            <a href="reports.html" class="active">
+            <a href="reports.php" class="active">
               <i class="bi bi-bar-chart-line"></i>
               <span>Reports</span>
             </a>
           </li>
 
           <li>
-            <a href="profile.html">
+            <a href="profile.php">
               <i class="bi bi-person-circle"></i>
               <span>Profile</span>
             </a>
@@ -1014,35 +1374,53 @@
           <p>View internship analytics and export reports.</p>
         </div>
 
-        <div class="date">📅 March 11, 2026</div>
+        <div class="date">
+          📅 <?= date("F j, Y"); ?>
+        </div>
       </div>
 
       <!-- SUMMARY -->
       <div class="card summary">
-        <div class="stat">
-          <h3>Completed</h3>
-          <strong>360</strong>
-        </div>
 
         <div class="stat">
-          <h3>Remaining</h3>
-          <strong>140</strong>
+          <h3>Completed Hours</h3>
+          <strong>
+            <?= $completed_hours_display; ?>
+          </strong>
         </div>
 
+
         <div class="stat">
-          <h3>Required</h3>
-          <strong>500</strong>
+          <h3>Remaining Hours</h3>
+          <strong>
+            <?= $remaining_hours; ?>
+          </strong>
         </div>
+
+
+        <div class="stat">
+          <h3>Total Required Hours</h3>
+          <strong>
+            <?= $required_hours; ?>
+          </strong>
+        </div>
+
 
         <div class="stat">
           <h3>Progress</h3>
-          <strong>72%</strong>
+          <strong>
+            <?= $progress_display; ?>
+          </strong>
         </div>
+
 
         <div class="stat">
           <h3>Expected Completion</h3>
-          <strong>April 3, 2026</strong>
+          <strong>
+            <?= $completion_date_display; ?>
+          </strong>
         </div>
+
       </div>
 
       <!-- CHARTS -->
@@ -1198,15 +1576,15 @@
       // WEEKLY HOURS BAR CHART
       // ==========================
 
-      let weeklyData = [
-        { day: "Mon", hours: 8 },
-        { day: "Tue", hours: 8 },
-        { day: "Wed", hours: 0 },
-        { day: "Thu", hours: 0 },
-        { day: "Fri", hours: 0 },
-        { day: "Sat", hours: 0 },
-        { day: "Sun", hours: 0 },
-      ];
+      const weeklyData = <?= json_encode([
+      ["day"=>"Mon","hours"=>$weekly_hours["Mon"]],
+      ["day"=>"Tue","hours"=>$weekly_hours["Tue"]],
+      ["day"=>"Wed","hours"=>$weekly_hours["Wed"]],
+      ["day"=>"Thu","hours"=>$weekly_hours["Thu"]],
+      ["day"=>"Fri","hours"=>$weekly_hours["Fri"]],
+      ["day"=>"Sat","hours"=>$weekly_hours["Sat"]],
+      ["day"=>"Sun","hours"=>$weekly_hours["Sun"]],
+      ]); ?>;
 
       const weeklyChart = document.querySelector("#weeklyChart");
 
@@ -1253,11 +1631,20 @@
       // MONTHLY HOURS BAR CHART
       // ==========================
 
-      let monthlyHoursData = [
-        { month: "Jan", hours: 144 },
-        { month: "Feb", hours: 160 },
-        { month: "Mar", hours: 56 },
-      ];
+      const monthlyHoursData = <?= json_encode([
+        ["month"=>"Jan","hours"=>$monthly_hours["Jan"]],
+        ["month"=>"Feb","hours"=>$monthly_hours["Feb"]],
+        ["month"=>"Mar","hours"=>$monthly_hours["Mar"]],
+        ["month"=>"Apr","hours"=>$monthly_hours["Apr"]],
+        ["month"=>"May","hours"=>$monthly_hours["May"]],
+        ["month"=>"Jun","hours"=>$monthly_hours["Jun"]],
+        ["month"=>"Jul","hours"=>$monthly_hours["Jul"]],
+        ["month"=>"Aug","hours"=>$monthly_hours["Aug"]],
+        ["month"=>"Sep","hours"=>$monthly_hours["Sep"]],
+        ["month"=>"Oct","hours"=>$monthly_hours["Oct"]],
+        ["month"=>"Nov","hours"=>$monthly_hours["Nov"]],
+        ["month"=>"Dec","hours"=>$monthly_hours["Dec"]],
+      ]); ?>.filter(item => item.hours > 0);
 
       const monthlyChart = document.querySelector("#monthlyChart");
 
@@ -1301,23 +1688,7 @@
     </script>
     <script>
       // Monthly Breakdown Data
-      let monthlyData = [
-        {
-          month: "January",
-          hours: 144,
-          sessions: 18, // Started internship late
-        },
-        {
-          month: "February",
-          hours: 160,
-          sessions: 20,
-        },
-        {
-          month: "March",
-          hours: 56,
-          sessions: 7,
-        },
-      ];
+      const monthlyData = <?= json_encode($monthly_breakdown); ?>;
 
       function renderMonthlyBreakdown() {
         const tbody = document.getElementById("monthly-table-body");
@@ -1360,59 +1731,7 @@
       // WEEKLY BREAKDOWN
       // ======================================
 
-      const weeklyBreakdownData = [
-        {
-          week: "Week 1 (Jan 5, 2026 – Jan 9, 2026)",
-          hours: 40,
-          sessions: 5,
-        },
-        {
-          week: "Week 2 (Jan 12, 2026 – Jan 16, 2026)",
-          hours: 40,
-          sessions: 5,
-        },
-        {
-          week: "Week 3 (Jan 19, 2026 – Jan 23, 2026)",
-          hours: 40,
-          sessions: 5,
-        },
-        {
-          week: "Week 4 (Jan 26, 2026 – Jan 30, 2026)",
-          hours: 24,
-          sessions: 3,
-        },
-        {
-          week: "Week 5 (Feb 2, 2026 – Feb 6, 2026)",
-          hours: 40,
-          sessions: 5,
-        },
-        {
-          week: "Week 6 (Feb 9, 2026 – Feb 13, 2026)",
-          hours: 40,
-          sessions: 5,
-        },
-        {
-          week: "Week 7 (Feb 16, 2026 – Feb 20, 2026)",
-          hours: 40,
-          sessions: 5,
-        },
-        {
-          week: "Week 8 (Feb 23, 2026 – Feb 27, 2026)",
-          hours: 40,
-          sessions: 5,
-        },
-        {
-          week: "Week 9 (Mar 2, 2026 – Mar 6, 2026)",
-          hours: 40,
-          sessions: 5,
-        },
-        {
-          week: "Week 10 (Mar 9, 2026 – Mar 13, 2026)",
-          hours: 16,
-          sessions: 2,
-        },
-      ];
-
+      const weeklyBreakdownData = <?= json_encode($weekly_breakdown); ?>;
       function renderWeeklyBreakdown() {
         const tbody = document.getElementById("weekly-table-body");
 
@@ -1452,44 +1771,16 @@
     <script>
       // Project data (used by BOTH the pie chart and ranking)
 
-      const projectData = [
-        {
-          name: "Inventory Management",
-          hours: 104,
-          color: "#005669", // Dark Teal
-        },
-        {
-          name: "POS System",
-          hours: 80,
-          color: "#0A9396", // Dark Cyan
-        },
-        {
-          name: "HRIS",
-          hours: 72,
-          color: "#7C974B", // Palm Leaf
-        },
-        {
-          name: "Payroll System",
-          hours: 56,
-          color: "#EE9B00", // Golden Orange
-        },
-        {
-          name: "Library Management System",
-          hours: 46,
-          color: "#F7CA7A", // Apricot Cream
-        },
-      ];
+      const projectData = <?= json_encode($project_distribution); ?>;
 
       projectData.sort((a, b) => b.hours - a.hours);
-
-      const totalHours = projectData.reduce((sum, p) => sum + p.hours, 0);
 
       const ranking = document.getElementById("projectRanking");
 
       ranking.innerHTML = "";
 
       projectData.forEach((project, index) => {
-        const percent = ((project.hours / totalHours) * 100).toFixed(1);
+        const percent = project.percent.toFixed(1);
 
         ranking.innerHTML += `
     <div class="project-item">
@@ -1570,12 +1861,12 @@
       // WEEKLY COMPLETION PLAN
       // ======================================
 
-      // Replace these with your database values later
+      const remainingHours = <?= $remaining_hours ?>;
 
-      const requiredHours = 500;
-      const completedHours = 360;
+      const standardPlan = <?= json_encode($weekly_plan) ?>;
 
-      const remainingHours = requiredHours - completedHours;
+      const balancedPlan = <?= json_encode($balanced_plan) ?>;
+
 
       // ======================================
 
@@ -1606,72 +1897,38 @@
       // ======================================
 
       function generateWeeklyPlan(mode) {
-        table.innerHTML = "";
 
-        if (remainingHours <= 0) {
-          table.innerHTML = `
+    table.innerHTML = "";
+
+    if (remainingHours <= 0) {
+
+        table.innerHTML = `
             <tr>
-                <td colspan="2" style="text-align:center;">
+                <td colspan="2">
                     🎉 Required OJT Hours Completed
                 </td>
             </tr>
         `;
 
-          return;
-        }
+        return;
+    }
 
-        // ============================
-        // STANDARD MODE
-        // 40 hrs/week until remaining
-        // ============================
+    const plan = mode === "standard"
+        ? standardPlan
+        : balancedPlan;
 
-        if (mode === "standard") {
-          let week = 1;
-          let hoursLeft = remainingHours;
+    plan.forEach((hours, index)=>{
 
-          while (hoursLeft > 0) {
-            const target = Math.min(40, hoursLeft);
+        table.innerHTML += `
+            <tr>
+                <td>Week ${index + 1}</td>
+                <td>${hours} hrs</td>
+            </tr>
+        `;
 
-            table.innerHTML += `
-                <tr>
-                    <td>Week ${week}</td>
-                    <td>${target} hrs</td>
-                </tr>
-            `;
+    });
 
-            hoursLeft -= target;
-            week++;
-          }
-        }
-
-        // ============================
-        // BALANCED MODE
-        // Equal distribution
-        // ============================
-        else {
-          const weeks = Math.ceil(remainingHours / 40);
-
-          const base = Math.floor(remainingHours / weeks);
-
-          let extra = remainingHours % weeks;
-
-          for (let week = 1; week <= weeks; week++) {
-            let target = base;
-
-            if (extra > 0) {
-              target++;
-              extra--;
-            }
-
-            table.innerHTML += `
-                <tr>
-                    <td>Week ${week}</td>
-                    <td>${target} hrs</td>
-                </tr>
-            `;
-          }
-        }
-      }
+}
     </script>
   </body>
 </html>

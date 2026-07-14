@@ -1,3 +1,44 @@
+<?php
+
+session_start();
+
+$conn = new mysqli("localhost", "root", "", "interntrack");
+
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php");
+    exit();
+}
+
+$user_id = $_SESSION['user_id'];
+
+$sql = "SELECT * FROM users WHERE id = '$user_id'";
+$result = $conn->query($sql);
+
+$user = $result->fetch_assoc();
+
+$required_hours = $user['required_hours'];
+
+// Get total completed hours from projects table
+$result = $conn->query("
+    SELECT SUM(hours) AS completed_hours
+    FROM projects
+    WHERE user_id = '$user_id'
+");
+
+$row = $result->fetch_assoc();
+$completed_hours = $row['completed_hours'] ?? 0;
+$remaining_hours = max(0, $required_hours - $completed_hours);
+
+$progress = 0;
+if ($required_hours > 0) {
+    $progress = round(($completed_hours / $required_hours) * 100);
+}
+
+?>
 <!doctype html>
 <html lang="en">
   <head>
@@ -364,10 +405,12 @@
         overflow: hidden;
       }
 
-      .progress {
-        width: 72%;
+      .progress-fill {
+        width: var(--progress);
         height: 100%;
+        border-radius: 20px;
         background: linear-gradient(to right, #d97706, #fbbf24);
+        transition: width 0.5s ease;
       }
 
       /* ==========================
@@ -429,35 +472,35 @@
 
         <ul>
           <li>
-            <a href="dashboard.html" class="active">
+            <a href="dashboard.php" class="active">
               <i class="bi bi-ui-checks-grid"></i>
               <span>Dashboard</span>
             </a>
           </li>
 
           <li>
-            <a href="projects.html">
+            <a href="projects.php">
               <i class="bi bi-folder2"></i>
               <span>Projects</span>
             </a>
           </li>
 
           <li>
-            <a href="calendar.html">
+            <a href="calendar.php">
               <i class="bi bi-calendar-event"></i>
               <span>Calendar</span>
             </a>
           </li>
 
           <li>
-            <a href="reports.html">
+            <a href="reports.php">
               <i class="bi bi-bar-chart-line"></i>
               <span>Reports</span>
             </a>
           </li>
 
           <li>
-            <a href="profile.html">
+            <a href="profile.php">
               <i class="bi bi-person-circle"></i>
               <span>Profile</span>
             </a>
@@ -485,13 +528,15 @@
           <p>Monitor your internship progress and attendance.</p>
         </div>
 
-        <div class="date">📅 March 11, 2026</div>
+        <div class="date">
+          📅 <?= date("F j, Y"); ?>
+        </div>
       </div>
 
       <!-- WELCOME -->
 
       <div class="welcome">
-        <h2>Welcome back, Juan!</h2>
+        <h2>Welcome back, <?= $user['first_name']; ?>!</h2>
 
         <p>
           Keep tracking your internship hours and stay on top of your OJT
@@ -506,7 +551,9 @@
         <div class="card">
           <h3>Remaining Hours</h3>
 
-          <div class="number">140</div>
+          <div class="number">
+            <?= $remaining_hours; ?>
+          </div>
 
           <span>Hours Left</span>
         </div>
@@ -514,7 +561,9 @@
         <div class="card">
           <h3>Completed Hours</h3>
 
-          <div class="number">360</div>
+          <div class="number">
+            <?= rtrim(rtrim(number_format($completed_hours, 2), '0'), '.'); ?>
+          </div>
 
           <span>Hours Completed</span>
         </div>
@@ -522,7 +571,9 @@
         <div class="card">
           <h3>Total Required Hours</h3>
 
-          <div class="number">500</div>
+          <div class="number">
+            <?= $required_hours; ?>
+          </div>
 
           <span>Required OJT Hours</span>
         </div>
@@ -533,11 +584,13 @@
       <div class="progress-card">
         <div class="progress-info">
           <h2>Overall Internship Progress</h2>
-          <span class="progress-percent">72%</span>
+          <span class="progress-percent">
+            <?= $progress; ?>%
+          </span>
         </div>
 
         <div class="progress-bar">
-          <div class="progress"></div>
+          <div class="progress-fill" style="--progress: <?= min($progress, 100); ?>%;"></div>
         </div>
       </div>
     </div>

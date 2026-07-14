@@ -1,3 +1,6 @@
+<?php
+include "database.php";
+?>
 <!doctype html>
 <html lang="en">
   <head>
@@ -176,40 +179,68 @@
           <p>Create your account</p>
         </div>
 
-        <form>
+        <form method="POST" action="signup_process.php">
           <div class="input-group">
-            <label>Full Name</label>
-            <input type="text" placeholder="Enter your full name" required />
+            <label>First Name</label>
+            <input
+              type="text"
+              name="first_name"
+              placeholder="Enter your first name"
+              required
+            />
+          </div>
+
+          <div class="input-group">
+            <label>Last Name</label>
+            <input
+              type="text"
+              name="last_name"
+              placeholder="Enter your last name"
+              required
+            />
           </div>
 
           <div class="input-group">
             <label>Email Address</label>
-            <input type="email" placeholder="Enter your email" required />
+            <input
+              type="email"
+              name="email"
+              placeholder="Enter your email"
+              required
+            />
           </div>
 
           <div class="input-group">
             <label>Password</label>
-            <input type="password" placeholder="Create a password" required />
+            <input
+              type="password"
+              name="password"
+              placeholder="Create a password"
+              required
+            />
           </div>
 
           <div class="input-group">
             <label>Confirm Password</label>
             <input
               type="password"
+              name="confirm_password"
               placeholder="Confirm your password"
               required
             />
           </div>
 
           <div class="terms">
-            <input type="checkbox" required />
+            <input type="checkbox" name="terms" required />
             <span
               >I agree to the <a href="#">Terms of Service</a> and
               <a href="#">Privacy Policy</a>.</span
             >
           </div>
 
-          <button class="signup-btn">Create Account</button>
+          <button type="submit" name="signup" class="signup-btn">
+            Create Account
+          </button>
         </form>
 
         <div class="login">
