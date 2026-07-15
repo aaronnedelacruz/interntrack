@@ -174,6 +174,24 @@ include "database.php";
           <p>Welcome back!</p>
         </div>
 
+        <?php if (isset($_GET['error'])): ?>
+
+        <div class="error-message">
+
+        <?php
+            if ($_GET['error'] == "password") {
+                echo "Incorrect password.";
+            }
+
+            if ($_GET['error'] == "account") {
+                echo "Account not found.";
+            }
+        ?>
+
+        </div>
+
+        <?php endif; ?>
+
         <form method="POST" action="login_process.php">
           <div class="input-group">
             <label>Email Address</label>

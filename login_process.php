@@ -26,11 +26,13 @@ if ($result->num_rows > 0) {
         exit();
 
     } else {
-        echo "Incorrect password";
+        header("Location: login.php?error=password");
+        exit();
     }
 
 } else {
-    echo "Account not found";
+    header("Location: login.php?error=account");
+    exit();
 }
 
 $conn->close();

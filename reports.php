@@ -964,7 +964,7 @@ if ($remaining_hours > 0) {
       /* Week */
       .weekly-table th:nth-child(1),
       .weekly-table td:nth-child(1) {
-        width: 19%;
+        width: 18%;
         text-align: left;
         white-space: normal;
         word-break: break-word;
@@ -974,7 +974,7 @@ if ($remaining_hours > 0) {
       /* Hours */
       .weekly-table th:nth-child(2),
       .weekly-table td:nth-child(2) {
-        width: 19%;
+        width: 15%;
         text-align: center;
       }
 
@@ -1245,15 +1245,48 @@ if ($remaining_hours > 0) {
       }
 
       .plan-table td:last-child {
-        text-align: right;
+        text-align: left;
         font-weight: 700;
         font-size: 15px;
         color: #005f73;
       }
 
       /* ==========================================
-   MOBILE
-========================================== */
+        PLAN THEMES
+      ========================================== */
+
+      /* Standard Schedule */
+      #planCard.standard .plan-controls {
+        background: #dceff0;
+        border-color: #c8e5e5;
+      }
+
+      #planCard.standard .plan-table thead {
+        background: #005f73;
+      }
+
+      #planCard.standard .plan-btn.active {
+        background: #14708a;
+        color: #fff;
+      }
+
+      /* Balanced Plan */
+      #planCard.balanced .plan-controls {
+        background: #ffe8bf;
+        border-color: #f4c86a;
+      }
+
+      #planCard.balanced .plan-table thead {
+        background: #ee9b00;
+      }
+
+      #planCard.balanced .plan-btn.active {
+        background: #ee9b00;
+        color: #fff;
+      }
+      /* ==========================================
+        MOBILE
+      ========================================== */
 
       @media (max-width: 768px) {
         .plan-controls {
@@ -1497,7 +1530,7 @@ if ($remaining_hours > 0) {
 
       <!-- WEEKLY COMPLETION PLAN -->
 
-      <div class="card">
+      <div class="card" id=planCard>
         <div class="plan-header">
           <h2>Weekly Completion Plan</h2>
           <p>
@@ -1516,7 +1549,7 @@ if ($remaining_hours > 0) {
           </button>
         </div>
 
-        <table class="plan-table">
+        <table class="plan-table" id="planTable">
           <thead>
             <tr>
               <th>Remaining Week</th>
@@ -1606,7 +1639,7 @@ if ($remaining_hours > 0) {
 
           const value = document.createElement("div");
           value.className = "value";
-          value.textContent = item.hours;
+          value.textContent = item.hours.toString().replace(/\.?0+$/, "");
 
           const bar = document.createElement("div");
           bar.className = "bar weekly-bar";
@@ -1666,7 +1699,7 @@ if ($remaining_hours > 0) {
 
           const value = document.createElement("div");
           value.className = "value";
-          value.textContent = item.hours;
+          value.textContent = item.hours.toString().replace(/\.?0+$/, "");
 
           const bar = document.createElement("div");
           bar.className = "bar monthly-bar";
@@ -1687,6 +1720,11 @@ if ($remaining_hours > 0) {
       renderMonthlyChart();
     </script>
     <script>
+    function formatHours(value) {
+      return value.toString().replace(/\.?0+$/, "");
+    }
+    </script>
+    <script>
       // Monthly Breakdown Data
       const monthlyData = <?= json_encode($monthly_breakdown); ?>;
 
@@ -1699,7 +1737,7 @@ if ($remaining_hours > 0) {
         let totalSessions = 0;
 
         monthlyData.forEach((item) => {
-          const avg = (item.hours / item.sessions).toFixed(1);
+          const avg = formatHours((item.hours / item.sessions).toFixed(2));
 
           totalHours += item.hours;
           totalSessions += item.sessions;
@@ -1719,7 +1757,7 @@ if ($remaining_hours > 0) {
         <td>Total</td>
         <td>${totalHours}</td>
         <td>${totalSessions}</td>
-        <td>${(totalHours / totalSessions).toFixed(1)}</td>
+        <td>${formatHours((totalHours / totalSessions).toFixed(2))}</td>
       </tr>
     `;
       }
@@ -1741,7 +1779,7 @@ if ($remaining_hours > 0) {
         let totalSessions = 0;
 
         weeklyBreakdownData.forEach((item) => {
-          const avg = (item.hours / item.sessions).toFixed(1);
+          const avg = formatHours((item.hours / item.sessions).toFixed(2));
 
           totalHours += item.hours;
           totalSessions += item.sessions;
@@ -1761,7 +1799,7 @@ if ($remaining_hours > 0) {
       <td>Total</td>
       <td>${totalHours}</td>
       <td>${totalSessions}</td>
-      <td>${(totalHours / totalSessions).toFixed(1)}</td>
+      <td>${formatHours((totalHours / totalSessions).toFixed(2))}</td>
     </tr>
   `;
       }
@@ -1875,7 +1913,11 @@ if ($remaining_hours > 0) {
       const standardBtn = document.getElementById("standardBtn");
       const balancedBtn = document.getElementById("balancedBtn");
 
+      const planTable = document.getElementById("planTable");
+      const planCard = document.getElementById("planCard");
+
       // Default
+      planCard.classList.add("standard");
       generateWeeklyPlan("standard");
 
       // ======================================
@@ -1884,12 +1926,18 @@ if ($remaining_hours > 0) {
         standardBtn.classList.add("active");
         balancedBtn.classList.remove("active");
 
+        planCard.classList.remove("balanced");
+        planCard.classList.add("standard");
+
         generateWeeklyPlan("standard");
       });
 
       balancedBtn.addEventListener("click", () => {
         balancedBtn.classList.add("active");
         standardBtn.classList.remove("active");
+
+        planCard.classList.remove("standard");
+        planCard.classList.add("balanced");
 
         generateWeeklyPlan("balanced");
       });
