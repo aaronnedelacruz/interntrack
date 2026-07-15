@@ -243,9 +243,44 @@ foreach ($holidays as $holiday) {
 // DEADLINES
 // ===============================
 
-// Temporary until you create a deadlines table
+$stmt = $conn->prepare("
+SELECT
+    id,
+    title,
+    notes,
+    due_date,
+    due_time,
+    is_completed
+FROM deadlines
+WHERE
+    user_id = ?
+    AND (
+        due_date > CURDATE()
+        OR (
+            due_date = CURDATE()
+            AND (
+                due_time IS NULL
+                OR due_time >= CURTIME()
+            )
+        )
+    )
+ORDER BY
+    due_date ASC,
+    due_time ASC
+");
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$result = $stmt->get_result();
+$all_deadlines = $result->fetch_all(MYSQLI_ASSOC);
+$upcoming_deadlines = $all_deadlines;
+$stmt->close();
 
-$deadlines = [];
+$deadlines_by_date = [];
+foreach ($all_deadlines as $d) {
+    $deadlines_by_date[$d['due_date']][] = $d;
+}
+
+
 ?>
 <!doctype html>
 <html lang="en">
@@ -788,6 +823,362 @@ $deadlines = [];
         font-style: italic;
       }
 
+      .deadline-preview{
+          padding:10px 0;
+          border-bottom:1px solid #eef2f4;
+      }
+
+      .deadline-preview:last-child{
+          border-bottom:none;
+      }
+
+      .deadline-preview-title{
+          font-size:15px;
+          font-weight:600;   /* or 700 if your font doesn't support 800 */
+          color:#005F73;
+          margin-bottom:2px;
+          letter-spacing:0.2px;
+      }
+
+      .deadline-preview-date{
+          font-size:14px;
+          color:#666;
+      }
+
+      /* ==========================
+        DEADLINE MODAL
+      ========================== */
+
+      .days > div {
+          position: relative;
+          cursor: pointer;
+      }
+
+      .days > div.has-deadline::after {
+          content: "";
+          position: absolute;
+          bottom: 6px;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 7px;
+          height: 7px;
+          border-radius: 50%;
+          background: #d64545;
+      }
+
+      /* Overlay */
+
+      .modal-overlay {
+          display: none;
+          position: fixed;
+          inset: 0;
+          background: rgba(0,0,0,.45);
+          align-items: center;
+          justify-content: center;
+          z-index: 999;
+      }
+
+      .modal-overlay.show {
+          display: flex;
+      }
+
+      /* Modal */
+
+      .modal-box {
+          width: 100%;
+          max-width: 500px;
+          background: #fff;
+          border-radius: 18px;
+          overflow: hidden;
+          box-shadow: 0 20px 45px rgba(0,0,0,.18);
+          animation: modalFade .25s ease;
+      }
+
+      @keyframes modalFade {
+          from {
+              opacity: 0;
+              transform: translateY(15px) scale(.97);
+          }
+          to {
+              opacity: 1;
+              transform: translateY(0) scale(1);
+          }
+      }
+
+      /* Header */
+
+      .modal-header {
+          background: linear-gradient(135deg,#005F73,#0A9396);
+          color: white;
+          padding: 18px 22px;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+      }
+
+      .modal-header h3 {
+          margin: 0;
+          font-size: 18px;
+          font-weight: 600;
+      }
+
+      .modal-header button {
+          border: none;
+          background: transparent;
+          color: white;
+          font-size: 28px;
+          cursor: pointer;
+          transition: .2s;
+      }
+
+      .modal-header button:hover {
+          transform: rotate(90deg);
+      }
+
+      /* ==========================
+        DEADLINE LIST
+      ========================== */
+
+      .deadline-list {
+          list-style: none;
+          margin: 20px;
+          padding: 0;
+          max-height: 250px;
+          overflow-y: auto;
+      }
+
+      .deadline-card {
+          background: #fff;
+          border: 1px solid #dfe8eb;
+          border-radius: 12px;
+          padding: 14px 16px;
+          margin-bottom: 12px;
+          box-shadow: 0 2px 8px rgba(0,0,0,.05);
+          transition: .2s;
+      }
+
+      .deadline-card:hover {
+          border-color: #0A9396;
+          box-shadow: 0 4px 12px rgba(0,95,115,.08);
+      }
+
+      .deadline-card.completed {
+          opacity: .55;
+          text-decoration: line-through;
+      }
+
+      .deadline-card-header{
+          display:flex;
+          justify-content:space-between;
+          align-items:flex-start;
+          gap:16px;
+      }
+
+      .deadline-title{
+          font-size:16px;
+          font-weight:700;
+          color:#202124;
+          line-height:1.3;
+          word-break:break-word;
+      }
+
+      .deadline-time{
+          display:flex;
+          align-items:center;
+          gap:6px;
+
+          margin-top:6px;
+
+          font-size:13px;
+          font-weight:500;
+
+          color:#005F73;
+      }
+
+      .deadline-notes{
+          margin-top:12px;
+
+          font-size:14px;
+          line-height:1.6;
+
+          color:#343a40;
+
+          white-space:pre-wrap;
+          word-break:break-word;
+      }
+
+      .delete-deadline-btn {
+          width: 34px;
+          height: 34px;
+          flex-shrink: 0;
+
+          border: none;
+          border-radius: 8px;
+
+          background: #f5f5f5;
+          color: #888;
+
+          cursor: pointer;
+          transition: .2s;
+      }
+
+      .deadline-info{
+          flex:1;
+      }
+
+      .deadline-actions{
+          display:flex;
+          align-items:center;
+          gap:8px;
+      }
+
+      .edit-deadline-btn,
+      .delete-deadline-btn{
+
+          width:34px;
+          height:34px;
+
+          border:none;
+          border-radius:8px;
+
+          display:flex;
+          align-items:center;
+          justify-content:center;
+
+          background:#f4f6f8;
+
+          cursor:pointer;
+
+          transition:.2s;
+      }
+
+      .edit-deadline-btn{
+          color:#005F73;
+      }
+
+      .edit-deadline-btn:hover{
+          background:#dff5f7;
+      }
+
+      .delete-deadline-btn{
+          color:#c43d3d;
+      }
+
+      .delete-deadline-btn:hover{
+          background:#ffe5e5;
+      }
+
+      .empty {
+          text-align: center;
+          color: #888;
+          background: #fafafa;
+          border: 1px dashed #d7d7d7;
+          border-radius: 10px;
+          padding: 18px;
+      }
+
+      /* ==========================
+        FORM
+      ========================== */
+
+      #addDeadlineForm {
+          padding: 0 20px 20px;
+      }
+
+      #addDeadlineForm label {
+          display: block;
+          margin-bottom: 14px;
+          font-size: 14px;
+          font-weight: 600;
+          color: #333;
+      }
+
+      #addDeadlineForm input,
+      #addDeadlineForm textarea {
+          width: 100%;
+          margin-top: 6px;
+          padding: 10px 12px;
+          border: 1px solid #d6dde0;
+          border-radius: 10px;
+          font-size: 14px;
+          box-sizing: border-box;
+          transition: .2s;
+      }
+
+      #addDeadlineForm textarea {
+          resize: vertical;
+          min-height: 70px;
+      }
+
+      #addDeadlineForm input:focus,
+      #addDeadlineForm textarea:focus {
+          outline: none;
+          border-color: #0A9396;
+          box-shadow: 0 0 0 3px rgba(10,147,150,.15);
+      }
+
+      #addDeadlineForm button {
+          width: 100%;
+          margin-top: 8px;
+          padding: 12px;
+          border: none;
+          border-radius: 10px;
+          background: linear-gradient(135deg,#005F73,#0A9396);
+          color: white;
+          font-size: 15px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: .25s;
+      }
+
+      #addDeadlineForm button:hover {
+          transform: translateY(-1px);
+          box-shadow: 0 8px 18px rgba(0,95,115,.25);
+      }
+
+      /* ==========================
+        TOGGLE BUTTON
+      ========================== */
+
+      .add-deadline-btn {
+          background: none;
+          border: none;
+          color: #0A9396;
+          font-size: 14px;
+          font-weight: 600;
+          padding: 0;
+          margin: 0 20px 16px;
+          cursor: pointer;
+          transition: .2s;
+      }
+
+      .add-deadline-btn:hover {
+          color: #005F73;
+          text-decoration: underline;
+      }
+
+      /* Hidden Form */
+
+      .hidden-form {
+          display: none;
+      }
+
+      .hidden-form.show {
+          display: block;
+          animation: fadeDown .25s ease;
+      }
+
+      @keyframes fadeDown {
+          from {
+              opacity: 0;
+              transform: translateY(-8px);
+          }
+          to {
+              opacity: 1;
+              transform: translateY(0);
+          }
+      }
+
       /* ==========================
    RESPONSIVE
 ========================== */
@@ -974,10 +1365,40 @@ $deadlines = [];
           <div class="event-section">
             <h2>Deadlines</h2>
 
-            <div class="info-row empty">
-              <span>No upcoming deadlines.</span>
-            </div>
-          </div>
+            <?php if(count($upcoming_deadlines) > 0): ?>
+
+                <?php foreach(array_slice($upcoming_deadlines, 0, 5) as $deadline): ?>
+
+                    <div class="deadline-preview">
+
+                        <div class="deadline-preview-title">
+                            <?= htmlspecialchars($deadline['title']); ?>
+                        </div>
+
+                        <div class="deadline-preview-date">
+
+                            <?= date("M j, Y", strtotime($deadline['due_date'])); ?>
+
+                            <?php if(!empty($deadline['due_time'])): ?>
+                                |
+                                <?= date("g:i A", strtotime($deadline['due_time'])); ?>
+                            <?php endif; ?>
+
+                        </div>
+
+                    </div>
+
+                <?php endforeach; ?>
+
+            <?php else: ?>
+
+                <div class="info-row empty">
+                    <span>No upcoming deadlines.</span>
+                </div>
+
+            <?php endif; ?>
+
+        </div>
 
           <div class="event-section">
             <h2>Holidays</h2>
@@ -1024,6 +1445,62 @@ $deadlines = [];
           </div>
 
           <div class="days" id="days"></div>
+        </div>
+      </div>
+
+      <div class="modal-overlay" id="deadlineModal">
+        <div class="modal-box">
+
+          <div class="modal-header">
+            <h3 id="modalDateLabel"></h3>
+            <button type="button" id="closeModalBtn">&times;</button>
+          </div>
+
+          <ul id="modalDeadlineList" class="deadline-list"></ul>
+
+          <button
+            type="button"
+            class="add-deadline-btn"
+            id="showDeadlineForm">
+            + Add Deadline
+          </button>
+
+          <form id="addDeadlineForm" class="hidden-form">
+
+            <input type="hidden" id="modalDateInput" name="due_date">
+
+            <label>
+              Title
+              <input
+                type="text"
+                name="title"
+                id="deadlineTitle"
+                maxlength="255"
+                required>
+            </label>
+
+            <label>
+              Time (optional)
+              <input
+                type="time"
+                name="due_time"
+                id="deadlineTime">
+            </label>
+
+            <label>
+              Notes (optional)
+              <textarea
+                name="notes"
+                id="deadlineNotes"
+                rows="2"></textarea>
+            </label>
+
+            <button type="submit">
+              Save Deadline
+            </button>
+
+          </form>
+
         </div>
       </div>
     </div>
@@ -1205,6 +1682,287 @@ $deadlines = [];
 
       // Refresh every minute
       setInterval(updateNextWorkdayPreview, 60000);
+    </script>
+    <script>
+      let deadlinesByDate = <?= json_encode($deadlines_by_date) ?>;
+
+      function pad(n) { return String(n).padStart(2, "0"); }
+      function toISODate(y, m, d) { return `${y}-${pad(m + 1)}-${pad(d)}`; }
+
+      function renderCalendar(date) {
+        const year = date.getFullYear();
+        const month = date.getMonth();
+
+        const firstDayIndex = new Date(year, month, 1).getDay();
+        const lastDate = new Date(year, month + 1, 0).getDate();
+
+        monthTitle.textContent = `${monthNames[month]} ${year}`;
+        daysContainer.innerHTML = "";
+
+        for (let i = 0; i < firstDayIndex; i++) {
+          daysContainer.appendChild(document.createElement("div"));
+        }
+
+        for (let day = 1; day <= lastDate; day++) {
+          const cell = document.createElement("div");
+          cell.textContent = day;
+
+          const iso = toISODate(year, month, day);
+          cell.dataset.date = iso;
+
+          const today = new Date();
+          if (day === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
+            cell.classList.add("today");
+          }
+
+          if (deadlinesByDate[iso] && deadlinesByDate[iso].length > 0) {
+            cell.classList.add("has-deadline");
+          }
+
+          cell.addEventListener("click", () => openDeadlineModal(iso));
+
+          daysContainer.appendChild(cell);
+        }
+      }
+
+      const modal = document.getElementById("deadlineModal");
+      const modalDateLabel = document.getElementById("modalDateLabel");
+      const modalList = document.getElementById("modalDeadlineList");
+      const modalDateInput = document.getElementById("modalDateInput");
+      const addForm = document.getElementById("addDeadlineForm");
+
+      const showBtn = document.getElementById("showDeadlineForm");
+
+      showBtn.addEventListener("click", () => {
+          addForm.classList.toggle("show");
+      });
+
+      function formatModalDate(iso) {
+        const [y, m, d] = iso.split("-").map(Number);
+        return new Date(y, m - 1, d).toLocaleDateString("en-US", {
+          weekday: "long", month: "long", day: "numeric", year: "numeric"
+        });
+      }
+
+      function formatTime(time) {
+          if (!time) return "";
+
+          const [hour, minute] = time.split(":");
+
+          return new Date(0, 0, 0, hour, minute).toLocaleTimeString("en-US", {
+              hour: "numeric",
+              minute: "2-digit",
+              hour12: true
+          });
+      }
+
+      function renderModalList(iso) {
+          const items = deadlinesByDate[iso] || [];
+
+          modalList.innerHTML = items.length
+              ? items.map(d => `
+                  <li class="deadline-card ${d.is_completed == 1 ? "completed" : ""}" data-id="${d.id}">
+
+                      <div class="deadline-card-header">
+
+                          <div class="deadline-info">
+
+                              <div class="deadline-title">
+                                  ${d.title}
+                              </div>
+
+                              ${d.due_time ? `
+                                  <div class="deadline-time">
+                                      <i class="bi bi-clock"></i>
+                                      ${formatTime(d.due_time)}
+                                  </div>
+                              ` : ""}
+
+                          </div>
+
+                          <div class="deadline-actions">
+
+                              <button
+                                  class="edit-deadline-btn"
+                                  data-id="${d.id}"
+                                  title="Edit Deadline">
+
+                                  <i class="bi bi-pencil-square"></i>
+
+                              </button>
+
+                              <button
+                                  class="delete-deadline-btn"
+                                  data-id="${d.id}"
+                                  title="Delete Deadline">
+
+                                  <i class="bi bi-trash-fill"></i>
+
+                              </button>
+
+                          </div>
+
+                      </div>
+
+                      ${d.notes ? `<div class="deadline-notes">${d.notes}</div>` : ""}
+
+                  </li>
+              `).join("")
+              : `
+                  <li class="empty">
+                      No deadlines yet for this day.
+                  </li>
+              `;
+      }
+
+      function openDeadlineModal(iso) {
+        modalDateLabel.textContent = formatModalDate(iso);
+        modalDateInput.value = iso;
+        renderModalList(iso);
+        modal.classList.add("show");
+      }
+
+      document.getElementById("closeModalBtn").onclick = () => modal.classList.remove("show");
+      modal.addEventListener("click", (e) => { if (e.target === modal) modal.classList.remove("show"); });
+
+      addForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const payload = {
+
+            action: editingDeadline ? "edit" : "add",
+            id: editingDeadline,
+            due_date: modalDateInput.value,
+            title: document.getElementById("deadlineTitle").value.trim(),
+            due_time: document.getElementById("deadlineTime").value || null,
+            notes: document.getElementById("deadlineNotes").value.trim() || null,
+        };
+
+        if (!payload.title) return;
+
+        const res = await fetch("calendar_deadline_process.php", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+
+        const result = await res.json();
+        if (!result.success) {
+          alert(result.message || "Could not save deadline.");
+          return;
+        }
+
+        // update local state so calendar + modal reflect it instantly
+        const iso = payload.due_date;
+
+        if (payload.action === "edit") {
+            const list = deadlinesByDate[iso] || [];
+            const index = list.findIndex(d => d.id == payload.id);
+
+            if (index > -1) {
+                list[index] = {
+                    ...list[index],
+                    title: payload.title,
+                    due_time: payload.due_time,
+                    notes: payload.notes
+                };
+            }
+            editingDeadline = null;
+            addForm.querySelector("button[type='submit']").textContent = "Save Deadline";
+
+        } else {
+            if (!deadlinesByDate[iso]) {
+                deadlinesByDate[iso] = [];
+            }
+            deadlinesByDate[iso].push(result.deadline);
+        }
+
+        renderModalList(iso);
+
+        const cell = [...daysContainer.children].find(c => c.dataset.date === iso);
+
+        if (cell) {
+            cell.classList.add("has-deadline");
+        }
+
+        addForm.reset();
+        addForm.classList.remove("show");
+      });
+
+      renderCalendar(currentDate);
+
+      document.querySelectorAll(".month button")[0].onclick = () => {
+        currentDate.setMonth(currentDate.getMonth() - 1);
+        renderCalendar(currentDate);
+      };
+      document.querySelectorAll(".month button")[1].onclick = () => {
+        currentDate.setMonth(currentDate.getMonth() + 1);
+        renderCalendar(currentDate);
+      };
+
+      let editingDeadline = null;
+
+      modalList.addEventListener("click", async (e) => {
+
+          const editBtn = e.target.closest(".edit-deadline-btn");
+          const deleteBtn = e.target.closest(".delete-deadline-btn");
+
+          if (editBtn) {
+
+              const id = Number(editBtn.dataset.id);
+
+              const deadline = Object.values(deadlinesByDate)
+                  .flat()
+                  .find(d => d.id == id);
+
+              if (!deadline) return;
+
+              editingDeadline = deadline.id;
+
+              document.getElementById("deadlineTitle").value = deadline.title;
+              document.getElementById("deadlineTime").value = deadline.due_time ?? "";
+              document.getElementById("deadlineNotes").value = deadline.notes ?? "";
+
+              addForm.classList.add("show");
+              addForm.querySelector("button[type='submit']").textContent = "Save Changes";
+
+              return;
+          }
+
+          if (deleteBtn) {
+
+              if (!confirm("Delete this deadline?"))
+                  return;
+
+              const id = Number(deleteBtn.dataset.id);
+
+              const res = await fetch("calendar_deadline_process.php", {
+                  method:"POST",
+                  headers:{
+                      "Content-Type":"application/json"
+                  },
+                  body:JSON.stringify({
+                      action:"delete",
+                      id:id
+                  })
+              });
+
+              const result = await res.json();
+
+              if(!result.success){
+                  alert(result.message);
+                  return;
+              }
+
+              deadlinesByDate[modalDateInput.value] =
+                  deadlinesByDate[modalDateInput.value]
+                      .filter(d=>d.id!=id);
+
+              renderModalList(modalDateInput.value);
+
+          }
+
+      });
     </script>
   </body>
 </html>
