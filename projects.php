@@ -1850,6 +1850,28 @@ $projects = $conn->query("
       function closeModal() {
           document.getElementById("logModal").style.display = "none";
       }
+
+      document.querySelectorAll(".edit-btn").forEach(button => {
+            button.addEventListener("click", function(){
+                document.getElementById("logModal").style.display = "flex";
+                document.querySelector(".modal-header h2").textContent = "Edit Work Log";
+                document.getElementById("formAction").value = "edit";
+                document.getElementById("project_id").value =
+                    this.dataset.id;
+                document.getElementById("project_name").value =
+                    this.dataset.project;
+                document.querySelector("textarea[name='activity']").value =
+                    this.dataset.activity;
+                document.getElementById("work_date").value =
+                    this.dataset.date;
+                document.getElementById("start_time").value =
+                    this.dataset.start;
+                document.getElementById("end_time").value =
+                    this.dataset.end;
+                document.getElementById("hours").value =
+                    this.dataset.hours;
+            });
+        });
       </script>
       <script>
         document.addEventListener("DOMContentLoaded", function () {

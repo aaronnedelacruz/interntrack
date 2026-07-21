@@ -140,7 +140,10 @@ switch ($action) {
         $user_id
     );
 
-    $stmt->execute();
+    if (!$stmt->execute()) {
+        die("SQL Error: " . $stmt->error);
+    }
+
     $stmt->close();
 
     header("Location: projects.php?success=deleted");
@@ -259,7 +262,7 @@ case "finish_timer":
     ]);
 
     exit();
-    
+
 /* ==========================
    GET ACTIVE TIMER
 ========================== */
