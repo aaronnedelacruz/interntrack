@@ -39,7 +39,7 @@ $working_days = isset($_POST['working_days'])
     : "";
 $start_time = $_POST['start_time'];
 $end_time = $_POST['end_time'];
-$start_date = $_POST['start_date'];
+//$start_date = $_POST['start_date'];
 
 
 // Update database
@@ -62,8 +62,7 @@ $sql = "UPDATE users SET
     hours_per_day = '$hours_per_day',
     working_days = '$working_days',
     start_time = '$start_time',
-    end_time = '$end_time',
-    start_date = '$start_date'
+    end_time = '$end_time'
 
 WHERE id = '$user_id'";
 

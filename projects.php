@@ -566,6 +566,40 @@ $projects = $conn->query("
       }
 
       /* ==========================
+        CLEAR FILTER BUTTON
+      ========================== */
+
+      .clear-filter-btn {
+        height: 44px;
+        padding: 0 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        border: none;
+        border-radius: 8px;
+        background: #005f73;
+        color: #fff9f4;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.25s ease;
+      }
+
+      .clear-filter-btn i {
+        font-size: 16px;
+      }
+
+      .clear-filter-btn:hover {
+        background: #EE9B00;
+        transform: translateY(-2px);
+      }
+
+      .clear-filter-btn:active {
+        transform: scale(0.96);
+      }
+
+      /* ==========================
    INPUT & SELECT WRAPPERS
 ========================== */
 
@@ -798,56 +832,217 @@ $projects = $conn->query("
       .project-table tbody tr:nth-child(even):hover {
         background: #f5fbfc;
       }
+
       /* ==========================
-   RESPONSIVE TABLE
-========================== */
+        ACTION BUTTONS
+      ========================== */
 
-      @media (max-width: 900px) {
-        .table-card {
-          overflow-x: auto;
-        }
+      .action-buttons{
+          display:flex;
+          justify-content:center;
+          align-items:center;
+          gap:10px;
+      }
 
-        .project-table {
-          min-width: 800px;
-        }
+      .action-btn{
+          width:36px;
+          height:36px;
+
+          display:flex;
+          align-items:center;
+          justify-content:center;
+
+          border:none;
+          outline:none;
+          border-radius:10px;
+
+          cursor:pointer;
+
+          transition:0.25s ease;
+
+          font-size:16px;
+      }
+
+      /* EDIT */
+
+      .edit-btn{
+          background:#e6f8f8;
+          color:#0A9396;
+      }
+
+      .edit-btn:hover{
+          background:#d4f1f2;
+          transform:translateY(-2px);
+      }
+
+      /* DELETE */
+
+      .delete-btn{
+          background:#fff1e6;
+          color:#EE9B00;
+      }
+
+      .delete-btn:hover{
+          background:#ffe4bf;
+          transform:translateY(-2px);
+      }
+
+      .action-btn:active{
+          transform:scale(.95);
       }
 
       /* ==========================
-   RESPONSIVE
-========================== */
+        RESPONSIVE TABLE
+      ========================== */
 
-      @media (max-width: 900px) {
-        .sidebar {
-          width: 210px;
-        }
+      @media (max-width:900px) {
+          .table-card {
+              overflow-x:auto;
+          }
 
-        .main {
-          margin-left: 210px;
-          width: calc(100% - 210px);
-        }
+          .project-table {
+              min-width:800px;
+          }
       }
 
-      @media (max-width: 768px) {
-        body {
-          flex-direction: column;
-        }
+      /* ==========================
+        RESPONSIVE
+      ========================== */
 
-        .sidebar {
-          position: relative;
-          width: 100%;
-          height: auto;
-        }
+      @media (max-width:1100px) {
+          .sidebar {
+              width:92px;
+              padding:30px 20px;
+          }
 
-        .main {
-          margin-left: 0;
-          width: 100%;
-        }
+          .sidebar .logo {
+              width:0;
+              opacity:0;
+          }
 
-        .header {
-          flex-direction: column;
-          align-items: flex-start;
-          gap: 15px;
-        }
+          .sidebar a {
+              justify-content:center;
+              width:52px;
+              padding:0;
+              margin:0 auto;
+              gap:0;
+          }
+
+          .sidebar a span {
+              max-width:0;
+              opacity:0;
+          }
+
+          .logout a {
+              justify-content:center;
+          }
+
+          .logout span {
+              max-width:0;
+              opacity:0;
+          }
+
+          .main {
+              margin-left:92px;
+              width:calc(100% - 92px);
+          }
+
+          .quick-actions {
+              flex-wrap:wrap;
+          }
+
+          .quick-btn {
+              min-width:220px;
+          }
+      }
+
+      @media (max-width:768px) {
+          .main {
+              padding:20px;
+          }
+
+          .header {
+              flex-direction:column;
+              align-items:flex-start;
+              gap:15px;
+          }
+
+          .quick-actions {
+              flex-direction:column;
+          }
+
+          .quick-btn {
+              width:100%;
+          }
+
+          .table-toolbar {
+              flex-direction:column;
+              align-items:stretch;
+          }
+
+          .search-box,
+          .filter-date,
+          .filter-view,
+          .filter-sort {
+              flex:1 1 100%;
+              width:100%;
+              min-width:0;
+          }
+
+          .time-row {
+              flex-direction:column;
+              gap:0;
+          }
+
+          .modal-content {
+              width:95%;
+              padding:20px;
+          }
+
+          .table-card {
+              padding:20px;
+          }
+
+          .table-header {
+              flex-direction:column;
+              align-items:flex-start;
+              gap:10px;
+          }
+      }
+
+      @media (max-width:480px) {
+          .main {
+              padding:15px;
+          }
+
+          .header h1 {
+              font-size:28px;
+          }
+
+          .date {
+              width:100%;
+          }
+
+          .quick-btn {
+              padding:14px;
+              font-size:14px;
+          }
+
+          .table-card {
+              padding:15px;
+          }
+
+          .table-header h2 {
+              font-size:20px;
+          }
+
+          .table-year {
+              font-size:24px;
+          }
+
+          .modal-content {
+              padding:15px;
+          }
       }
     </style>
   </head>
@@ -955,8 +1150,9 @@ $projects = $conn->query("
             <span class="close" onclick="closeModal()">&times;</span>
           </div>
 
-          <form action="projects_add.php" method="POST">
-
+          <form action="projects_process.php" method="POST">
+            <input type="hidden" name="action" value="add" id="formAction">
+            <input type="hidden" name="id" id="project_id">
             <div class="input-group">
               <label>Project Name</label>
               <input
@@ -1025,8 +1221,10 @@ $projects = $conn->query("
               >
             </div>
 
-            <button class="save-log-btn">
-              Save Log
+            <button
+                type="submit"
+                class="save-log-btn">
+                Save Log
             </button>
 
           </form>
@@ -1035,11 +1233,33 @@ $projects = $conn->query("
 
       <!-- SUCCESS MESSAGE -->
       <?php if (isset($_GET['success'])): ?>
+
           <div class="success-message">
-            <i class="bi bi-check-circle-fill"></i>
-             Work log saved successfully.
+              <i class="bi bi-check-circle-fill"></i>
+
+              <?php
+              if ($_GET['success'] == "added") {
+                  echo "Work log saved successfully.";
+              } 
+              elseif ($_GET['success'] == "edited") {
+                  echo "Work log updated successfully.";
+              } 
+              elseif ($_GET['success'] == "deleted") {
+                  echo "Work log deleted successfully.";
+              }
+              ?>
+
           </div>
+
+          <script>
+              setTimeout(() => {
+                  window.history.replaceState(null, null, window.location.pathname);
+              }, 100);
+          </script>
+
       <?php endif; ?>
+
+      
 
       <!-- TABLE -->
 
@@ -1052,7 +1272,7 @@ $projects = $conn->query("
         <div class="table-toolbar">
           <div class="search-box">
             <i class="bi bi-search"></i>
-            <input type="text" placeholder="Search logs" />
+            <input type="text" id="searchLogs" placeholder="Search project or activity" />
           </div>
 
           <div class="input-box filter-date">
@@ -1061,22 +1281,30 @@ $projects = $conn->query("
           </div>
 
           <div class="select-box filter-view">
-            <select>
-              <option>Weekly View</option>
-              <option>Monthly View</option>
+            <select id="filter-view">
+                <option value="all">All Logs</option>
+                <option value="week">This Week</option>
+                <option value="month">This Month</option>
+                <option value="7days">Last 7 Days</option>
+                <option value="30days">Last 30 Days</option>
             </select>
             <i class="bi bi-chevron-down"></i>
           </div>
 
           <div class="select-box filter-sort">
-            <select>
-              <option>Sort by Latest</option>
-              <option>Sort by Oldest</option>
-              <option>Highest Hours</option>
-              <option>Lowest Hours</option>
+            <select id="filter-sort">
+              <option value="latest">Sort by Latest</option>
+              <option value="oldest">Sort by Oldest</option>
+              <option value="highest">Highest Hours</option>
+              <option value="lowest">Lowest Hours</option>
             </select>
             <i class="bi bi-chevron-down"></i>
           </div>
+
+          <button id="clearFilters" class="clear-filter-btn">
+              <i class="bi bi-x-circle"></i>
+              Clear Fliters
+          </button>
         </div>
 
         <table class="project-table">
@@ -1090,12 +1318,12 @@ $projects = $conn->query("
             </tr>
           </thead>
 
-          <tbody>
+          <tbody id="projectsTable">
             <?php while($row = $projects->fetch_assoc()): ?>
-            <tr>
+            <tr data-date="<?= $row['work_date']; ?>" data-time="<?= $row['start_time']; ?>" data-hours="<?= $row['hours']; ?>">
                 <td><?= htmlspecialchars($row['project_name']); ?></td>
                 <td><?= htmlspecialchars($row['activity']); ?></td>
-                <td><?= $row['hours']; ?></td>
+                <td><?= rtrim(rtrim(number_format($row['hours'], 2), '0'), '.'); ?></td>
                 <td>
                     <?= date("F j, Y", strtotime($row['work_date'])); ?>
                     •
@@ -1104,10 +1332,43 @@ $projects = $conn->query("
                     <?= date("g:i A", strtotime($row['end_time'])); ?>
                 </td>
 
-                <td>
-                    <i class="bi bi-pencil-square"></i>
-                    <i class="bi bi-trash"></i>
-                </td>
+                <td class="action-buttons">
+                  <button
+                      type="button"
+                      class="action-btn edit-btn"
+
+                      data-id="<?= $row['id']; ?>"
+                      data-project="<?= htmlspecialchars($row['project_name']); ?>"
+                      data-activity="<?= htmlspecialchars($row['activity']); ?>"
+                      data-date="<?= $row['work_date']; ?>"
+                      data-start="<?= $row['start_time']; ?>"
+                      data-end="<?= $row['end_time']; ?>"
+                      data-hours="<?= $row['hours']; ?>">
+
+                      <i class="bi bi-pencil-square"></i>
+
+                  </button>
+
+                  <form
+                      action="projects_process.php"
+                      method="POST"
+                      style="display:inline;">
+
+                      <input type="hidden" name="action" value="delete">
+                      <input type="hidden" name="id" value="<?= $row['id']; ?>">
+
+                      <button
+                          type="submit"
+                          class="action-btn delete-btn"
+                          onclick="return confirm('Delete this log?')">
+
+                          <i class="bi bi-trash"></i>
+
+                      </button>
+
+                  </form>
+
+              </td>
             </tr>
             <?php endwhile; ?>
 
@@ -1161,8 +1422,13 @@ $projects = $conn->query("
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script>
       flatpickr("#filter-date", {
-        dateFormat: "M j, Y",
-        allowInput: true,
+          dateFormat: "Y-m-d",
+          altInput: true,
+          altFormat: "F j, Y",
+
+          onChange: function() {
+              filterTable();
+          }
       });
     </script>
     <script>
@@ -1230,5 +1496,156 @@ $projects = $conn->query("
 
         });
       </script>
+      <script>
+        // SEARCH LOGS FILTER
+        const searchInput = document.getElementById("searchLogs");
+        const dateInput = document.getElementById("filter-date");
+        const viewFilter = document.getElementById("filter-view");
+        const sortFilter = document.getElementById("filter-sort");
+        const tableBody = document.getElementById("projectsTable");
+
+        // Gets the Clear Filters button
+        const clearButton = document.getElementById("clearFilters");
+
+        searchInput.addEventListener("input", filterTable);
+        dateInput.addEventListener("change", filterTable);
+        viewFilter.addEventListener("change", filterTable);
+        sortFilter.addEventListener("change", filterTable);
+
+        // Clear button event
+        clearButton.addEventListener("click", clearFilters);
+
+        function filterTable() {
+            const keyword = searchInput.value.toLowerCase().trim();
+            const selectedDate = dateInput.value;
+            const selectedView = viewFilter.value;
+            const selectedSort = sortFilter.value;
+
+            let rows = Array.from(
+                document.querySelectorAll("#projectsTable tr")
+            );
+
+            // FILTERING
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                const rowDate = new Date(row.dataset.date);
+                const today = new Date();
+
+                let matchesSearch =
+                    keyword === "" ||
+                    text.includes(keyword);
+
+                let matchesDate =
+                    selectedDate === "" ||
+                    row.dataset.date === selectedDate;
+
+                // PERIOD FILTER
+                let matchesView = true;
+
+                if(selectedView === "week") {
+                    const firstDay = new Date(today);
+                    firstDay.setDate(today.getDate() - today.getDay());
+                    matchesView =
+                        rowDate >= firstDay &&
+                        rowDate <= today;
+                }
+
+                if(selectedView === "month") {
+                    matchesView =
+                        rowDate.getMonth() === today.getMonth()
+                        &&
+                        rowDate.getFullYear() === today.getFullYear();
+                }
+
+                if(selectedView === "7days") {
+                    const last7 = new Date(today);
+                    last7.setDate(today.getDate() - 7);
+                    matchesView =
+                        rowDate >= last7 &&
+                        rowDate <= today;
+                }
+
+                if(selectedView === "30days") {
+                    const last30 = new Date(today);
+                    last30.setDate(today.getDate() - 30);
+                    matchesView =
+                        rowDate >= last30 &&
+                        rowDate <= today;
+                }
+
+                row.style.display =
+                    matchesSearch &&
+                    matchesDate &&
+                    matchesView
+                    ? ""
+                    : "none";
+
+            });
+
+            // SORTING
+            rows.sort((a,b)=>{
+                const dateA = new Date(
+                    a.dataset.date + " " + a.dataset.time
+                );
+
+                const dateB = new Date(
+                    b.dataset.date + " " + b.dataset.time
+                );
+
+                const hoursA = Number(a.dataset.hours);
+                const hoursB = Number(b.dataset.hours);
+
+                switch(selectedSort){
+
+                    case "latest":
+                        return dateB - dateA;
+
+                    case "oldest":
+                        return dateA - dateB;
+
+                    case "highest":
+                        return hoursB - hoursA;
+
+                    case "lowest":
+                        return hoursA - hoursB;
+
+                    default:
+                        return 0;
+
+                }
+
+            });
+
+            rows.forEach(row => tableBody.appendChild(row));
+
+        }
+
+        // CLEAR ALL FILTERS FUNCTION
+        function clearFilters(){
+
+            // Clear search box
+            searchInput.value = "";
+
+            // Clear date picker
+            // Works with Flatpickr if installed
+            if(dateInput._flatpickr){
+                dateInput._flatpickr.clear();
+            }
+
+            else{
+                dateInput.value = "";
+            }
+
+            // Reset period filter
+            viewFilter.value = "all";
+
+            // Reset sorting
+            sortFilter.value = "latest";
+
+            // Refresh table
+            filterTable();
+
+        }
+    </script>
   </body>
 </html>

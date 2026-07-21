@@ -70,16 +70,28 @@ $month_data = $month_result->fetch_assoc();
 $month_hours = $month_data['month_hours'] ?? 0;
 
 // ===============================
-// REMAINING WORK DAYS
+// TOTAL HOURS THIS WEEK
 // ===============================
 
-$remaining_hours = 
-$user['required_hours'] - $total_hours;
-$remaining_days = 0;
-if ($user['hours_per_day'] > 0) {
-    $remaining_days =
-    $remaining_hours / $user['hours_per_day'];
-}
+date_default_timezone_set("Asia/Manila");
+
+$week_start = date("Y-m-d", strtotime("monday this week"));
+$week_end   = date("Y-m-d", strtotime("sunday this week"));
+
+$week_sql = "
+SELECT SUM(hours) AS week_hours
+FROM projects
+WHERE user_id = '$user_id'
+AND work_date BETWEEN '$week_start' AND '$week_end'
+";
+
+$week_result = $conn->query($week_sql);
+$week_data = $week_result->fetch_assoc();
+
+$week_hours = $week_data['week_hours'] ?? 0;
+
+$week_hours_display =
+rtrim(rtrim(number_format($week_hours,2), '0'), '.');
 
 // ===============================
 // NEXT WORKDAY CALCULATION
@@ -108,8 +120,7 @@ while(true){
 $daily_average_display =
 rtrim(rtrim(number_format($daily_average,2), '0'), '.');
 
-$remaining_days_display =
-rtrim(rtrim(number_format($remaining_days,1), '0'), '.');
+
 
 // ===============================
 // TIME UNTIL NEXT OJT SESSION
@@ -1180,44 +1191,126 @@ foreach ($all_deadlines as $d) {
       }
 
       /* ==========================
-   RESPONSIVE
-========================== */
+        RESPONSIVE
+      ========================== */
 
-      @media (max-width: 900px) {
-        .sidebar {
-          width: 210px;
-        }
+      @media (max-width:1100px) {
+          .sidebar {
+              width:92px;
+              padding:30px 20px;
+          }
 
-        .main {
-          margin-left: 210px;
-          width: calc(100% - 210px);
-        }
-        .calendar-layout {
-          grid-template-columns: 1fr;
-        }
+          .sidebar .logo {
+              width:0;
+              opacity:0;
+          }
+
+          .sidebar a {
+              justify-content:center;
+              width:52px;
+              padding:0;
+              margin:0 auto;
+              gap:0;
+          }
+
+          .sidebar a span {
+              max-width:0;
+              opacity:0;
+          }
+
+          .logout a {
+              justify-content:center;
+          }
+
+          .logout span {
+              max-width:0;
+              opacity:0;
+          }
+
+          .main {
+              margin-left:92px;
+              width:calc(100% - 92px);
+          }
+
+          .calendar-layout {
+              grid-template-columns:1fr;
+          }
       }
 
-      @media (max-width: 768px) {
-        body {
-          flex-direction: column;
-        }
+      @media (max-width:768px) {
+          .main {
+              padding:20px;
+          }
 
-        .sidebar {
-          position: relative;
-          width: 100%;
-          height: auto;
-        }
+          .header {
+              flex-direction:column;
+              align-items:flex-start;
+              gap:15px;
+          }
 
-        .main {
-          margin-left: 0;
-          width: 100%;
-        }
+          .summary {
+              grid-template-columns:1fr;
+          }
 
-        .header {
-          flex-direction: column;
-          align-items: flex-start;
-          gap: 15px;
-        }
+          .calendar-card {
+              padding:20px;
+          }
+
+          .events {
+              padding:20px;
+          }
+
+          .month h2 {
+              font-size:24px;
+          }
+
+          .days div {
+              height:60px;
+          }
+
+          .legend {
+              gap:15px;
+          }
+      }
+
+      @media (max-width:480px) {
+          .main {
+              padding:15px;
+          }
+
+          .header h1 {
+              font-size:28px;
+          }
+
+          .date {
+              width:100%;
+          }
+
+          .calendar-card {
+              padding:15px;
+          }
+
+          .weekdays,
+          .days {
+              gap:5px;
+          }
+
+          .days div {
+              height:45px;
+              font-size:13px;
+          }
+
+          .card {
+              padding:20px;
+          }
+
+          .card .number {
+              font-size:30px;
+          }
+
+          .deadline-card-header {
+              flex-direction:column;
+          }
       }
     </style>
   </head>
@@ -1302,18 +1395,12 @@ foreach ($all_deadlines as $d) {
       <!-- ATTENDANCE SUMMARY -->
 
       <div class="summary">
-        <div class="card daily-card">
-          <h3>Daily Average Hours</h3>
-          <div class="number">
-            <?= $daily_average_display; ?>
-          </div>
-        </div>
+        <div class="card week-card">
+          <h3>Total Hours This Week</h3>
 
-        <div class="card active-card">
-          <h3>Total Days Active</h3>
           <div class="number">
-            <?= $total_days; ?>
-        </div>
+              <?= $week_hours_display; ?>
+          </div>
         </div>
 
         <div class="card month-card">
@@ -1323,10 +1410,17 @@ foreach ($all_deadlines as $d) {
           </div>
         </div>
 
-        <div class="card remaining-card">
-          <h3>Remaining Work Days</h3>
+        <div class="card active-card">
+          <h3>Total Days Completed</h3>
           <div class="number">
-            <?= $remaining_days_display = rtrim(rtrim(number_format($remaining_days, 2), '0'), '.'); ?>
+            <?= $total_days; ?>
+          </div>
+        </div>
+
+        <div class="card daily-card">
+          <h3>Daily Average Hours</h3>
+          <div class="number">
+            <?= $daily_average_display; ?>
           </div>
         </div>
       </div>
@@ -1348,18 +1442,20 @@ foreach ($all_deadlines as $d) {
             </div>
 
             <div class="info-row">
+              <span>Time Until Session</span>
+              <strong>
+                <?= $time_until; ?>
+              </strong>
+            </div>
+
+            <div class="info-row">
               <span>Expected Hours</span>
               <strong>
                 <?= $user['hours_per_day']; ?> hrs
               </strong>
             </div>
 
-            <div class="info-row">
-              <span>Time Until Session</span>
-              <strong>
-                <?= $time_until; ?>
-              </strong>
-            </div>
+            
           </div>
 
           <div class="event-section">

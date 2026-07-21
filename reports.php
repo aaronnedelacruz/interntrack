@@ -97,7 +97,7 @@ while($hours_left > 0){
     }
 }
 
-$completion_date_display = $completion_date->format("F j, Y");
+$completion_date_display = $completion_date->format("M j, Y");
 
 // ===============================
 // FORMAT DISPLAY VALUES
@@ -129,6 +129,9 @@ $weekly_hours = [
 
 $week_start = new DateTime("monday this week");
 $week_end = new DateTime("sunday this week");
+$week_range = $week_start->format("F j, Y") .
+              " – " .
+              $week_end->format("F j, Y");
 
 $weekly_sql = "
 SELECT
@@ -176,6 +179,7 @@ $monthly_breakdown = [];
 
 $monthly_sql = "
 SELECT
+    YEAR(work_date) AS year,
     MONTH(work_date) AS month_number,
     DATE_FORMAT(work_date, '%b') AS month,
     MONTHNAME(work_date) AS month_name,
@@ -196,17 +200,32 @@ while ($row = $monthly_result->fetch_assoc()) {
 
     // For Monthly Breakdown Table
     $monthly_breakdown[] = [
-        "month" => $row['month_name'],
-        "hours" => (float)$row['total_hours'],
-        "sessions" => (int)$row['sessions']
-    ];
+    "month" => $row['month_name'],
+    "year" => $row['year'],
+    "hours" => (float)$row['total_hours'],
+    "sessions" => (int)$row['sessions']
+  ];
 }
 
-$monthly_result = $conn->query($monthly_sql);
+$months = array_values($monthly_breakdown);
 
-while ($row = $monthly_result->fetch_assoc()) {
-    $monthly_hours[$row['month']] = $row['total_hours'];
+if (!empty($months)) {
+
+    $first = $months[0];
+    $last = end($months);
+
+    $monthly_range =
+        $first["month"] . " " . $first["year"] .
+        " – " .
+        $last["month"] . " " . $last["year"];
+
+} else {
+
+    $monthly_range = "No Data";
+
 }
+
+
 
 // ===============================
 // WEEKLY BREAKDOWN
@@ -218,8 +237,6 @@ $weekly_breakdown_sql = "
 SELECT
     YEAR(work_date) AS year,
     WEEK(work_date, 1) AS week_number,
-    MIN(work_date) AS week_start,
-    MAX(work_date) AS week_end,
     SUM(hours) AS total_hours,
     COUNT(DISTINCT work_date) AS sessions
 FROM projects
@@ -234,12 +251,24 @@ $week = 1;
 
 while ($row = $weekly_breakdown_result->fetch_assoc()) {
 
+    // Monday of the ISO week
+    $weekStart = new DateTime();
+    $weekStart->setISODate(
+        $row['year'],
+        $row['week_number'],
+        1
+    );
+
+    // Sunday of the same week
+    $weekEnd = clone $weekStart;
+    $weekEnd->modify('+6 days');
+
     $weekly_breakdown[] = [
         "week" => "Week " . $week .
             " (" .
-            date("M j, Y", strtotime($row['week_start'])) .
-            " - " .
-            date("M j, Y", strtotime($row['week_end'])) .
+            $weekStart->format("M j, Y") .
+            " – " .
+            $weekEnd->format("M j, Y") .
             ")",
 
         "hours" => (float)$row['total_hours'],
@@ -308,53 +337,65 @@ while ($row = $project_result->fetch_assoc()) {
 $weekly_plan = [];
 
 if ($remaining_hours > 0) {
-
     $hours_per_day = (float)$user['hours_per_day'];
-
     $working_days_per_week = count($working_days);
-
     $max_weekly_hours = $hours_per_day * $working_days_per_week;
-
     $hours_left = $remaining_hours;
 
     while ($hours_left > 0) {
-
         $target = min($max_weekly_hours, $hours_left);
-
         $weekly_plan[] = round($target, 2);
-
         $hours_left -= $target;
     }
-
 }
 
 $balanced_plan = [];
 
 if ($remaining_hours > 0) {
-
     $weeks_remaining = count($weekly_plan);
-
     $base = floor(($remaining_hours / $weeks_remaining) * 100) / 100;
-
     $remaining = $remaining_hours;
 
     for ($i = 0; $i < $weeks_remaining; $i++) {
-
         if ($i == $weeks_remaining - 1) {
-
-            $target = round($remaining,2);
-
+            $target = round($remaining, 2);
         } else {
-
             $target = $base;
-
         }
 
         $balanced_plan[] = $target;
-
         $remaining -= $target;
     }
+}
 
+
+// ======================================
+// WEEKLY PLAN DATE RANGES
+// ======================================
+
+$weekly_plan_ranges = [];
+
+$current_start = clone $today;
+$current_end = clone $today;
+$current_end->modify("sunday this week");
+
+foreach ($weekly_plan as $index => $hours) {
+    $display_end = clone $current_end;
+
+    // Final week ends on expected completion date
+    if ($index == count($weekly_plan) - 1) {
+        $display_end = clone $completion_date;
+    }
+
+    $weekly_plan_ranges[] = [
+        "start" => $current_start->format("M j, Y"),
+        "end"   => $display_end->format("M j, Y")
+    ];
+
+    $current_start = clone $current_end;
+    $current_start->modify("+1 day");
+    $current_end = clone $current_start;
+    $current_end->modify("sunday this week");
 }
 
 ?>
@@ -694,6 +735,14 @@ if ($remaining_hours > 0) {
         font-size: 25px;
       }
 
+      /* Expected Completion */
+      .summary .stat:nth-child(4) strong {
+          font-size: 25px;
+          font-weight: 700;
+          transition: font-size 0.3s ease;
+      }
+
+    
       /* =========================
    SIDE BY SIDE
 ========================= */
@@ -756,19 +805,25 @@ if ($remaining_hours > 0) {
 ========================================== */
 
       .chart-container {
-        width: 100%;
-        height: 380px;
-        background: white;
-        padding: 24px;
-        border-radius: 18px;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+          height: 380px;
+          background: white;
+          padding: 24px;
+          border-radius: 18px;
+          box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+          min-width: 0;
       }
 
-      .chart-title {
-        font-size: 18px;
-        margin-bottom: 20px;
-        font-weight: bold;
-        color: #005f73;
+      .chart-title{
+          font-size:18px;
+          font-weight:600;
+          color:#005F73;
+      }
+
+      .chart-subtitle{
+          font-size:13px;
+          font-weight:400;
+          color:#7a7a7a;
+          white-space:nowrap;
       }
 
       .chart {
@@ -810,6 +865,32 @@ if ($remaining_hours > 0) {
         font-size: clamp(12px, 1vw, 15px);
         color: #005f73;
         font-weight: 600;
+      }
+
+      .chart-header{
+          display:flex;
+          justify-content:space-between;
+          align-items:center;
+          margin-bottom:18px;
+      }
+
+      .charts-grid .chart-header h2{
+          margin:0;
+          font-size:24px;
+          color:#005F73 !important;
+      }
+
+      .chart-header h3{
+          margin:0;
+          font-size:20px;
+          font-weight:600;
+      }
+
+      .chart-header span{
+          display:block;
+          margin-top:3px;
+          color:#777;
+          font-size:13px;
       }
 
       /* ==========================================
@@ -1148,6 +1229,20 @@ if ($remaining_hours > 0) {
         line-height: 1.6;
       }
 
+      .week-title{
+          font-size:15px;
+          font-weight:700;
+          color:#005F73;
+          line-height:1.3;
+      }
+
+      .week-range{
+          margin-top:3px;
+          font-size:13px;
+          font-weight:400;
+          color:#777;
+      }
+
       /* ==========================================
    TOGGLE BUTTONS
 ========================================== */
@@ -1315,22 +1410,111 @@ if ($remaining_hours > 0) {
         }
       }
 
-      @media (max-width: 768px) {
-        body {
-          flex-direction: column;
+      /* =========================
+        RESPONSIVE
+        ========================= */
+
+        @media (max-width:1100px){
+
+            .sidebar{
+                width:92px;
+                padding:30px 20px;
+            }
+
+            .sidebar .logo{
+                width:0;
+                opacity:0;
+            }
+
+            .sidebar a{
+                justify-content:center;
+                width:52px;
+                padding:0;
+                margin:0 auto;
+                gap:0;
+            }
+
+            .sidebar a span,
+            .logout span{
+                max-width:0;
+                opacity:0;
+            }
+
+            .logout a{
+                justify-content:center;
+            }
+
+            .main{
+                margin-left:92px;
+                width:calc(100% - 92px);
+            }
+
+            .charts-grid,
+            .grid-2,
+            .project-distribution{
+                grid-template-columns:1fr;
+            }
+
+            .pie-wrapper{
+                max-width:280px;
+            }
         }
 
-        .sidebar {
-          position: relative;
-          width: 100%;
-          height: auto;
+        @media (max-width:768px){
+
+            .main{
+                padding:20px;
+            }
+
+            .header{
+                flex-direction:column;
+                align-items:flex-start;
+                gap:15px;
+            }
+
+            .summary{
+                grid-template-columns:1fr 1fr;
+            }
+
+            .chart-container{
+                height:auto;
+            }
+
+            .chart{
+                height:230px;
+            }
+
+            .weekly-bar,
+            .monthly-bar{
+                width:clamp(24px,5vw,55px);
+            }
         }
 
-        .main {
-          margin-left: 0;
-          width: 100%;
+        @media (max-width:560px){
+
+            .summary{
+                grid-template-columns:1fr;
+            }
+
+            .main{
+                padding:15px;
+            }
+
+            .header h1{
+                font-size:28px;
+            }
+
+            .date{
+                width:100%;
+            }
+
+            .chart-header{
+                flex-direction:column;
+                align-items:flex-start;
+                gap:6px;
+            }
         }
-      }
+
     </style>
   </head>
 
@@ -1416,60 +1600,62 @@ if ($remaining_hours > 0) {
       <div class="card summary">
 
         <div class="stat">
-          <h3>Completed Hours</h3>
-          <strong>
-            <?= $completed_hours_display; ?>
-          </strong>
+            <h3>Progress</h3>
+            <strong>
+                <?= $progress_display; ?>
+            </strong>
         </div>
-
 
         <div class="stat">
-          <h3>Remaining Hours</h3>
-          <strong>
-            <?= $remaining_hours; ?>
-          </strong>
+            <h3>Completed Hours</h3>
+            <strong>
+                <?= $completed_hours_display; ?>
+            </strong>
         </div>
-
 
         <div class="stat">
-          <h3>Total Required Hours</h3>
-          <strong>
-            <?= $required_hours; ?>
-          </strong>
+            <h3>Remaining Hours</h3>
+            <strong>
+                <?= $remaining_hours; ?>
+            </strong>
         </div>
-
 
         <div class="stat">
-          <h3>Progress</h3>
-          <strong>
-            <?= $progress_display; ?>
-          </strong>
+            <h3>Expected Completion</h3>
+            <strong>
+                <?= $completion_date_display; ?>
+            </strong>
         </div>
-
 
         <div class="stat">
-          <h3>Expected Completion</h3>
-          <strong>
-            <?= $completion_date_display; ?>
-          </strong>
+            <h3>Total Required Hours</h3>
+            <strong>
+                <?= $required_hours; ?>
+            </strong>
         </div>
 
-      </div>
+    </div>
 
       <!-- CHARTS -->
       <div class="charts-grid">
-        <div class="chart-container">
-          <div class="chart-title">Weekly Hours</div>
-          <div class="chart" id="weeklyChart"></div>
-        </div>
+          <div class="chart-container">
+              <div class="chart-header">
+                  <h2>Weekly Hours</h2>
+                  <div class="chart-subtitle"><?= $week_range ?></div>
+              </div>
+              <div class="chart" id="weeklyChart"></div>
+          </div>
 
-        <div class="chart-container">
-          <div class="chart-title">Monthly Hours</div>
-          <div class="chart" id="monthlyChart"></div>
-        </div>
+          <div class="chart-container">
+              <div class="chart-header">
+                  <h2>Monthly Hours</h2>
+                  <div class="chart-subtitle"><?= $monthly_range ?></div>
+              </div>
+              <div class="chart" id="monthlyChart"></div>
+          </div>
       </div>
 
-      <!-- WEEKLY BREAKDOWN -->
+      <!-- WEEKLY BREAKDOWN --> 
 
       <div class="card">
         <h2>Weekly Breakdown</h2>
@@ -1532,10 +1718,9 @@ if ($remaining_hours > 0) {
 
       <div class="card" id=planCard>
         <div class="plan-header">
-          <h2>Weekly Completion Plan</h2>
+          <h2>Weekly Completion Forecast Table</h2>
           <p>
-            Recommended hours to render each remaining week in order to complete
-            the required OJT hours.
+            Recommended hours to render each remaining week in order to complete the required OJT hours.
           </p>
         </div>
 
@@ -1552,7 +1737,7 @@ if ($remaining_hours > 0) {
         <table class="plan-table" id="planTable">
           <thead>
             <tr>
-              <th>Remaining Week</th>
+              <th>Remaining Weeks</th>
               <th>Target Hours</th>
             </tr>
           </thead>
@@ -1744,7 +1929,7 @@ if ($remaining_hours > 0) {
 
           tbody.innerHTML += `
         <tr>
-          <td>${item.month}</td>
+          <td>${item.month} ${item.year}</td>
           <td>${item.hours}</td>
           <td>${item.sessions}</td>
           <td>${avg}</td>
@@ -1896,33 +2081,39 @@ if ($remaining_hours > 0) {
     </script>
     <script>
       // ======================================
-      // WEEKLY COMPLETION PLAN
-      // ======================================
+    // WEEKLY COMPLETION PLAN
+    // ======================================
 
-      const remainingHours = <?= $remaining_hours ?>;
+    const remainingHours = <?= $remaining_hours ?>;
 
-      const standardPlan = <?= json_encode($weekly_plan) ?>;
+    const standardPlan = <?= json_encode($weekly_plan) ?>;
 
-      const balancedPlan = <?= json_encode($balanced_plan) ?>;
+    const balancedPlan = <?= json_encode($balanced_plan) ?>;
+
+    const weeklyRanges = <?= json_encode($weekly_plan_ranges) ?>;
 
 
-      // ======================================
+    // ======================================
 
-      const table = document.getElementById("weeklyPlanTable");
+    const table = document.getElementById("weeklyPlanTable");
 
-      const standardBtn = document.getElementById("standardBtn");
-      const balancedBtn = document.getElementById("balancedBtn");
+    const standardBtn = document.getElementById("standardBtn");
+    const balancedBtn = document.getElementById("balancedBtn");
 
-      const planTable = document.getElementById("planTable");
-      const planCard = document.getElementById("planCard");
+    const planTable = document.getElementById("planTable");
+    const planCard = document.getElementById("planCard");
 
-      // Default
-      planCard.classList.add("standard");
-      generateWeeklyPlan("standard");
+    // Default
 
-      // ======================================
+    planCard.classList.add("standard");
 
-      standardBtn.addEventListener("click", () => {
+    generateWeeklyPlan("standard");
+
+
+    // ======================================
+
+    standardBtn.addEventListener("click", () => {
+
         standardBtn.classList.add("active");
         balancedBtn.classList.remove("active");
 
@@ -1930,9 +2121,11 @@ if ($remaining_hours > 0) {
         planCard.classList.add("standard");
 
         generateWeeklyPlan("standard");
-      });
 
-      balancedBtn.addEventListener("click", () => {
+    });
+
+    balancedBtn.addEventListener("click", () => {
+
         balancedBtn.classList.add("active");
         standardBtn.classList.remove("active");
 
@@ -1940,43 +2133,55 @@ if ($remaining_hours > 0) {
         planCard.classList.add("balanced");
 
         generateWeeklyPlan("balanced");
-      });
-
-      // ======================================
-
-      function generateWeeklyPlan(mode) {
-
-    table.innerHTML = "";
-
-    if (remainingHours <= 0) {
-
-        table.innerHTML = `
-            <tr>
-                <td colspan="2">
-                    🎉 Required OJT Hours Completed
-                </td>
-            </tr>
-        `;
-
-        return;
-    }
-
-    const plan = mode === "standard"
-        ? standardPlan
-        : balancedPlan;
-
-    plan.forEach((hours, index)=>{
-
-        table.innerHTML += `
-            <tr>
-                <td>Week ${index + 1}</td>
-                <td>${hours} hrs</td>
-            </tr>
-        `;
 
     });
 
-}
+
+    // ======================================
+
+    function generateWeeklyPlan(mode) {
+
+        table.innerHTML = "";
+
+        if (remainingHours <= 0) {
+
+            table.innerHTML = `
+                <tr>
+                    <td colspan="2">
+                        🎉 Required OJT Hours Completed
+                    </td>
+                </tr>
+            `;
+
+            return;
+        }
+
+        const plan =
+            mode === "standard"
+                ? standardPlan
+                : balancedPlan;
+
+        plan.forEach((hours, index) => {
+
+            table.innerHTML += `
+                <tr>
+                    <td>
+                        <div class="week-title">
+                            Week ${index + 1}
+                        </div>
+
+                        <div class="week-range">
+                            ${weeklyRanges[index].start} – ${weeklyRanges[index].end}
+                        </div>
+                    </td>
+
+                    <td>${hours} hrs</td>
+                </tr>
+            `;
+
+        });
+
+    }
     </script>
   </body>
 </html>

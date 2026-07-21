@@ -17,6 +17,99 @@ $result = $conn->query($sql);
 
 $user = $result->fetch_assoc();
 
+// ===============================
+// HOURS SUMMARY
+// ===============================
+
+$hours_sql = "
+SELECT
+    COALESCE(SUM(hours),0) AS completed_hours,
+    COUNT(*) AS total_sessions,
+    COUNT(DISTINCT work_date) AS total_days
+FROM projects
+WHERE user_id = '$user_id'
+";
+
+$hours_result = $conn->query($hours_sql);
+$hours = $hours_result->fetch_assoc();
+
+$completed_hours = (float)$hours['completed_hours'];
+$total_sessions = (int)$hours['total_sessions'];
+$total_days = (int)$hours['total_days'];
+
+$required_hours = (float)$user['required_hours'];
+
+$remaining_hours = max(
+    $required_hours - $completed_hours,
+    0
+);
+
+
+// ===============================
+// PROGRESS
+// ===============================
+
+$progress = 0;
+
+if ($required_hours > 0) {
+    $progress = ($completed_hours / $required_hours) * 100;
+}
+
+$progress_display = round($progress) . "%";
+
+
+// ===============================
+// FORMAT HOURS
+// ===============================
+
+$completed_hours_display = rtrim(
+    rtrim(number_format($completed_hours,2),'0'),
+    '.'
+);
+
+$remaining_hours_display = rtrim(
+    rtrim(number_format($remaining_hours,2),'0'),
+    '.'
+);
+
+
+// ===============================
+// EXPECTED COMPLETION DATE
+// ===============================
+
+date_default_timezone_set("Asia/Manila");
+
+$working_days = explode(",", $user['working_days']);
+
+$completion_date = new DateTime();
+
+$hours_left = $remaining_hours;
+
+while ($hours_left > 0) {
+
+    $completion_date->modify("+1 day");
+
+    if (in_array($completion_date->format("l"), $working_days)) {
+
+        $hours_left -= $user['hours_per_day'];
+
+    }
+
+}
+
+$completion_date_display = $completion_date->format("F j, Y");
+
+// ===============================
+// INTERNSHIP STATUS
+// ===============================
+
+if ($progress >= 100) {
+    $internship_status = "Completed";
+} else {
+    $internship_status = "Active Internship";
+}
+
+
 ?>
 <!doctype html>
 <html lang="en">
@@ -385,8 +478,12 @@ PROFILE HERO
 
       .badge.active {
         background: #7c974b;
-
         color: white;
+      }
+
+      .badge.completed {
+          background: #2e7d32;
+          color: white;
       }
 
       /* ==========================
@@ -493,15 +590,72 @@ SECTION HEADER
         background: #0a9396;
       }
 
-      /* Orange */
+      /* Blue Green */
 
       .section-title.settings {
+        background: #0da472
+      }
+
+      /* Orange */
+      .section-title.progress {
         background: #ee9b00;
       }
 
       /* ==========================
-FIELDS
-========================== */
+      PROGRESS OVERVIEW
+      ========================== */
+
+      
+
+      .progress-card .info-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+          gap: 18px;
+      }
+
+      .progress-card .field {
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+
+          min-height: 100px;
+
+          background: #f8fcfd;
+          border: 1px solid #d8e1e9;
+          border-radius: 12px;
+
+          padding: 18px;
+      }
+
+      .progress-card .field span {
+          display: block;
+
+          font-size: 11px;
+          text-transform: uppercase;
+          letter-spacing: 1px;
+
+          color: #60757f;
+          font-weight: 700;
+
+          margin-bottom: 10px;
+      }
+
+      .progress-card .field input {
+          width: 100%;
+
+          border: none;
+          outline: none;
+          background: transparent;
+
+          font-size: 22px;
+          font-weight: 700;
+
+          color: #005669;
+      }
+
+      /* ==========================
+      FIELDS
+      ========================== */
 
       .info-grid {
         display: grid;
@@ -556,13 +710,6 @@ FIELDS
 INTERNSHIP SETTINGS GROUP
 ========================== */
 
-      .settings-card .info-grid {
-        display: flex;
-
-        flex-direction: column;
-
-        gap: 0;
-      }
 
       .settings-card .field {
         display: flex;
@@ -704,46 +851,100 @@ BUTTONS
       }
 
       /* ==========================
-RESPONSIVE
-========================== */
+    RESPONSIVE
+    ========================== */
 
-      @media (max-width: 1000px) {
-        .profile-grid {
-          grid-template-columns: 1fr;
+          @media (max-width: 1000px) {
+            .profile-grid {
+              grid-template-columns: 1fr;
+            }
+
+            .profile-banner {
+              flex-direction: column;
+
+              align-items: flex-start;
+            }
+
+            .info-grid {
+              grid-template-columns: 1fr;
+            }
+
+            .working-days {
+              grid-column: auto;
+            }
+          }
+
+          /* =========================
+      RESPONSIVE
+    ========================= */
+
+    @media (max-width:1100px){
+
+        .sidebar{
+            width:92px;
+            padding:30px 20px;
         }
 
-        .profile-banner {
-          flex-direction: column;
-
-          align-items: flex-start;
+        .sidebar .logo{
+            width:0;
+            opacity:0;
         }
 
-        .info-grid {
-          grid-template-columns: 1fr;
+        .sidebar a{
+            justify-content:center;
+            width:52px;
+            padding:0;
+            margin:0 auto;
+            gap:0;
         }
 
-        .working-days {
-          grid-column: auto;
-        }
-      }
-
-      @media (max-width: 768px) {
-        .profile-left {
-          flex-direction: column;
-
-          align-items: flex-start;
+        .sidebar a span,
+        .logout span{
+            max-width:0;
+            opacity:0;
         }
 
-        .profile-actions {
-          width: 100%;
-
-          flex-direction: column;
+        .logout a{
+            justify-content:center;
         }
 
-        .btn {
-          justify-content: center;
+        .main{
+            margin-left:92px;
+            width:calc(100% - 92px);
         }
-      }
+
+    }
+
+    @media (max-width:768px){
+
+        .main{
+            padding:20px;
+        }
+
+        .header{
+            flex-direction:column;
+            align-items:flex-start;
+            gap:15px;
+        }
+
+    }
+
+    @media (max-width:560px){
+
+        .main{
+            padding:15px;
+        }
+
+        .header h1{
+            font-size:28px;
+        }
+
+        .date{
+            width:100%;
+        }
+    }
+
+    
     </style>
   </head>
 
@@ -838,7 +1039,7 @@ RESPONSIVE
               <h2>
                 <?= $user['first_name'] . " " . $user['last_name']; ?><!-- Display the user's full name -->
               </h2>
-              <p><?= $user['course']; ?></p><!-- Display the user's course -->
+              <p><?= $user['degree_program']; ?></p><!-- Display the user's course -->
 
               <div class="profile-badges">
                 <span class="badge school">
@@ -846,9 +1047,9 @@ RESPONSIVE
                   <?= $user['school']; ?>
                 </span>
 
-                <span class="badge active">
-                  <i class="bi bi-check-circle-fill"></i>
-                  Active Internship
+                <span class="badge <?= $progress >= 100 ? 'completed' : 'active'; ?>">
+                    <i class="bi <?= $progress >= 100 ? 'bi-check-circle-fill' : 'bi-hourglass-split'; ?>"></i>
+                    <?= $internship_status; ?>
                 </span>
               </div>
             </div>
@@ -875,268 +1076,303 @@ RESPONSIVE
           </div>
         </div>
 
-      <!-- ==========================
-        TOP GRID
+        <!-- ==========================
+          TOP GRID
+        ========================== -->
+        <!-- ==========================
+      PROFILE GRID
       ========================== -->
-        <div class="profile-grid">
-          <!-- PERSONAL INFORMATION -->
 
-          <div class="card">
-            <div class="section-title personal">
-              <i class="bi bi-person-vcard-fill"></i>
-              <h2>Personal Information</h2>
-            </div>
+      <div class="profile-grid">
 
-            <div class="info-grid">
-              <div class="field">
-                <span>First Name</span>
-                <input 
-                  name="first_name"
-                  value="<?= $user['first_name']; ?>"
-                  disabled
-                />
-              </div>
+        <!-- STUDENT INFORMATION -->
 
-              <div class="field">
-                <span>Last Name</span>
-                <input 
-                  name="last_name"
-                  value="<?= $user['last_name']; ?>"
-                  disabled
-                />
-              </div>
-
-              <div class="field">
-                <span>Email Address</span>
-                <input 
-                  name="email"
-                  value="<?= $user['email']; ?>"
-                  disabled
-                />
-              </div>
-
-              <div class="field">
-                <span>Student ID</span>
-                <input 
-                  name="student_id"
-                  value="<?= $user['student_id']; ?>"
-                  disabled
-                />
-              </div>
-            </div>
+        <div class="card">
+          <div class="section-title personal">
+            <i class="bi bi-person-vcard-fill"></i>
+            <h2>Student Information</h2>
           </div>
 
-        <!-- INTERNSHIP DETAILS -->
+          <div class="info-grid">
 
-          <div class="card">
-            <div class="section-title internship">
-              <i class="bi bi-briefcase-fill"></i>
-              <h2>Internship Details</h2>
+            <div class="field">
+              <span>First Name</span>
+              <input
+                name="first_name"
+                value="<?= $user['first_name']; ?>"
+                disabled
+              />
             </div>
 
-            <div class="info-grid">
-              <div class="field">
-                <span>Company</span>
-                <input 
-                  name="company"
-                  value="<?= $user['company']; ?>" 
-                  disabled 
-                />
-              </div>
-              <div class="field">
-                <span>Department</span>
-                <input 
-                  name="department"
-                  value="<?= $user['department']; ?>" 
-                  disabled 
-                />
-              </div> 
-            
-              <div class="field">
-                <span>OJT Supervisor</span>
-                <input 
-                  name="supervisor"
-                  value="<?= $user['supervisor']; ?>" 
-                  disabled 
-                />
-              </div>
-
-              <div class="field">
-                <span>School</span>
-                <input 
-                  name="school"
-                  value="<?= $user['school']; ?>" 
-                  disabled 
-                />
-              </div>
-
-              <div class="field full-width">
-                <span>OJT Professor</span>
-                <input 
-                  name="professor"
-                  value="<?= $user['professor']; ?>" 
-                  disabled 
-                />
-              </div>
+            <div class="field">
+              <span>Last Name</span>
+              <input
+                name="last_name"
+                value="<?= $user['last_name']; ?>"
+                disabled
+              />
             </div>
+
+            <div class="field">
+              <span>Email Address</span>
+              <input
+                name="email"
+                value="<?= $user['email']; ?>"
+                disabled
+              />
+            </div>
+
+            <div class="field">
+              <span>Student ID</span>
+              <input
+                name="student_id"
+                value="<?= $user['student_id']; ?>"
+                disabled
+              />
+            </div>
+
+            <div class="field">
+              <span>School</span>
+              <input
+                name="school"
+                value="<?= $user['school']; ?>"
+                disabled
+              />
+            </div>
+
+            <div class="field">
+              <span>Degree Program</span>
+              <input
+                name="course"
+                value="<?= $user['degree_program']; ?>"
+                disabled
+              />
+            </div>
+
           </div>
         </div>
 
-        <!-- ==========================
-        INTERNSHIP SETTINGS
-        ========================== -->
+        <!-- INTERNSHIP INFORMATION -->
 
-        <div class="card settings-card">
-          <div class="section-title settings">
-            <i class="bi bi-gear-fill"></i>
-            <h2>Internship Settings</h2>
+        <div class="card">
+          <div class="section-title internship">
+            <i class="bi bi-briefcase-fill"></i>
+            <h2>Internship Information</h2>
           </div>
 
-          <div class="settings-grid">
+          <div class="info-grid">
+
             <div class="field">
-              <span>Total Required OJT Hours</span>
-              <input 
-                type="number"
-                name="required_hours"
-                value="<?= $user['required_hours']; ?>"
+              <span>Company</span>
+              <input
+                name="company"
+                value="<?= $user['company']; ?>"
                 disabled
               />
             </div>
 
             <div class="field">
-              <span>Expected Hours per Day</span>
-              <input 
-                type="number"
-                name="hours_per_day"
-                value="<?= $user['hours_per_day']; ?>"
-                disabled
-                />
-            </div>
-
-            <?php
-              $workingDays = explode(",", $user['working_days']);
-            ?>
-
-            <div class="field working-days">
-              <span>Working Days</span>
-
-                <div class="days">
-
-                    <label>
-                        <input
-                            type="checkbox"
-                            name="working_days[]"
-                            value="Monday"
-                            <?= in_array("Monday", $workingDays) ? "checked" : ""; ?>
-                            disabled
-                        />
-                        Monday
-                    </label>
-
-                    <label>
-                        <input
-                            type="checkbox"
-                            name="working_days[]"
-                            value="Tuesday"
-                            <?= in_array("Tuesday", $workingDays) ? "checked" : ""; ?>
-                            disabled
-                        />
-                        Tuesday
-                    </label>
-
-                    <label>
-                        <input
-                            type="checkbox"
-                            name="working_days[]"
-                            value="Wednesday"
-                            <?= in_array("Wednesday", $workingDays) ? "checked" : ""; ?>
-                            disabled
-                        />
-                        Wednesday
-                    </label>
-
-                    <label>
-                        <input
-                            type="checkbox"
-                            name="working_days[]"
-                            value="Thursday"
-                            <?= in_array("Thursday", $workingDays) ? "checked" : ""; ?>
-                            disabled
-                        />
-                        Thursday
-                    </label>
-
-                    <label>
-                        <input
-                            type="checkbox"
-                            name="working_days[]"
-                            value="Friday"
-                            <?= in_array("Friday", $workingDays) ? "checked" : ""; ?>
-                            disabled
-                        />
-                        Friday
-                    </label>
-
-                    <label>
-                        <input
-                            type="checkbox"
-                            name="working_days[]"
-                            value="Saturday"
-                            <?= in_array("Saturday", $workingDays) ? "checked" : ""; ?>
-                            disabled
-                        />
-                        Saturday
-                    </label>
-
-                    <label>
-                        <input
-                            type="checkbox"
-                            name="working_days[]"
-                            value="Sunday"
-                            <?= in_array("Sunday", $workingDays) ? "checked" : ""; ?>
-                            disabled
-                        />
-                        Sunday
-                    </label>
-
-                </div>
-            </div>
-
-            <div class="field">
-              <span>Start Time</span>
-                <input
-                    type="time"
-                    name="start_time"
-                    value="<?= $user['start_time']; ?>"
-                    disabled
-                />
-            </div>
-
-            <div class="field">
-                <span>End Time</span>
-
-                <input
-                    type="time"
-                    name="end_time"
-                    value="<?= $user['end_time']; ?>"
-                    disabled
-                />
-            </div>
-
-            <div class="field">
-              <span>Internship Start Date</span>
-              <input 
-                type="date"
-                name="start_date"
-                value="<?= $user['start_date']; ?>"
+              <span>Department</span>
+              <input
+                name="department"
+                value="<?= $user['department']; ?>"
                 disabled
               />
             </div>
+
+            <div class="field">
+              <span>Position / Role</span>
+              <input
+                name="position"
+                value="<?= $user['position_role']; ?>"  
+                disabled
+              />
+            </div>
+
+            <div class="field">
+              <span>OJT Supervisor</span>
+              <input
+                name="supervisor"
+                value="<?= $user['supervisor']; ?>"
+                disabled
+              />
+            </div>
+
+            <div class="field">
+              <span>OJT Professor</span>
+              <input
+                name="professor"
+                value="<?= $user['professor']; ?>"
+                disabled
+              />
+            </div>
+
+            <div class="field">
+                <span>Internship Status</span>
+                <input
+                    value="<?= $internship_status; ?>"
+                    disabled
+                />
+            </div>
           </div>
+        </div>
+      </div>
+
+      <!-- ==========================
+      INTERNSHIP SCHEDULE
+      ========================== -->
+
+      <div class="card settings-card">
+
+        <div class="section-title settings">
+          <i class="bi bi-calendar-week-fill"></i>
+          <h2>Internship Schedule</h2>
+        </div>
+
+        <div class="settings-grid">
+
+          <div class="field">
+            <span>Total Required OJT Hours</span>
+            <input
+              type="number"
+              name="required_hours"
+              value="<?= $user['required_hours']; ?>"
+              disabled
+            />
+          </div>
+
+          <div class="field">
+            <span>Expected Hours per Day</span>
+            <input
+              type="number"
+              name="hours_per_day"
+              value="<?= $user['hours_per_day']; ?>"
+              disabled
+            />
+          </div>
+
+          <?php $workingDays = explode(",", $user['working_days']); ?>
+
+          <div class="field working-days">
+            <span>Working Days</span>
+
+            <div class="days">
+
+              <label><input type="checkbox" name="working_days[]" value="Monday" <?= in_array("Monday",$workingDays)?"checked":""; ?> disabled /> Monday</label>
+
+              <label><input type="checkbox" name="working_days[]" value="Tuesday" <?= in_array("Tuesday",$workingDays)?"checked":""; ?> disabled /> Tuesday</label>
+
+              <label><input type="checkbox" name="working_days[]" value="Wednesday" <?= in_array("Wednesday",$workingDays)?"checked":""; ?> disabled /> Wednesday</label>
+
+              <label><input type="checkbox" name="working_days[]" value="Thursday" <?= in_array("Thursday",$workingDays)?"checked":""; ?> disabled /> Thursday</label>
+
+              <label><input type="checkbox" name="working_days[]" value="Friday" <?= in_array("Friday",$workingDays)?"checked":""; ?> disabled /> Friday</label>
+
+              <label><input type="checkbox" name="working_days[]" value="Saturday" <?= in_array("Saturday",$workingDays)?"checked":""; ?> disabled /> Saturday</label>
+
+              <label><input type="checkbox" name="working_days[]" value="Sunday" <?= in_array("Sunday",$workingDays)?"checked":""; ?> disabled /> Sunday</label>
+
+            </div>
+
+          </div>
+
+          <div class="field">
+            <span>Start Time</span>
+            <input
+              type="time"
+              name="start_time"
+              value="<?= $user['start_time']; ?>"
+              disabled
+            />
+          </div>
+
+          <div class="field">
+            <span>End Time</span>
+            <input
+              type="time"
+              name="end_time"
+              value="<?= $user['end_time']; ?>"
+              disabled
+            />
+          </div>
+
+          <!-- ==========================
+
+          <div class="field">
+            <span>Internship Start Date</span>
+            <input
+              type="date"
+              name="start_date"
+              value="<?= $user['start_date']; ?>"
+              disabled
+            />
+          </div>
+
+
+          <div class="field">
+            <span>Expected Completion Date</span>
+            <input
+              type="text"
+              value="<?= $completion_date_display; ?>"
+              disabled
+            />
+          </div>
+
+          ========================== -->
+
+
+        </div>
+
+      </div>
+
+      <!-- ==========================
+      PROGRESS OVERVIEW
+      ========================== -->
+
+      <div class="card">
+
+        <div class="section-title progress">
+          <i class="bi bi-bar-chart-fill"></i>
+          <h2>Progress Overview</h2>
+        </div>
+
+        <div class="info-grid">
+
+          <div class="field">
+            <span>Completed Hours</span>
+            <input
+              value="<?= $completed_hours_display; ?>"
+              disabled
+            />
+          </div>
+
+          <div class="field">
+            <span>Remaining Hours</span>
+            <input
+              value="<?= $remaining_hours_display; ?>"
+              disabled
+            />
+          </div>
+
+          <div class="field">
+            <span>Progress</span>
+            <input
+              value="<?= $progress_display; ?>"
+              disabled
+            />
+          </div>
+
+          <div class="field">
+            <span>Total Days Completed</span>
+            <input
+              value="<?= $total_days; ?>"
+              disabled
+            />
+          </div>
+
         </div>
       </form>
     </div>
-
     <script>
       const toggleBtn = document.getElementById("menu-toggle");
       const menuIcon = document.getElementById("menu-icon");

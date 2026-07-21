@@ -414,41 +414,94 @@ if ($required_hours > 0) {
       }
 
       /* ==========================
-   RESPONSIVE
-========================== */
+        RESPONSIVE
+      ========================== */
 
-      @media (max-width: 900px) {
-        .sidebar {
-          width: 210px;
-        }
+      @media (max-width: 1100px) {
+          .sidebar {
+              width: 92px;
+              padding: 30px 20px;
+          }
 
-        .main {
-          margin-left: 210px;
-          width: calc(100% - 210px);
-        }
+          .sidebar .logo {
+              width: 0;
+              opacity: 0;
+          }
+
+          .sidebar a {
+              justify-content: center;
+              width: 52px;
+              padding: 0;
+              margin: 0 auto;
+              gap: 0;
+          }
+
+          .sidebar a span {
+              max-width: 0;
+              opacity: 0;
+          }
+
+          .logout a {
+              justify-content: center;
+          }
+
+          .logout span {
+              max-width: 0;
+              opacity: 0;
+          }
+
+          .main {
+              margin-left: 92px;
+              width: calc(100% - 92px);
+          }
       }
 
       @media (max-width: 768px) {
-        body {
-          flex-direction: column;
-        }
+          .main {
+              padding: 20px;
+          }
 
-        .sidebar {
-          position: relative;
-          width: 100%;
-          height: auto;
-        }
+          .header {
+              flex-direction: column;
+              align-items: flex-start;
+              gap: 15px;
+          }
 
-        .main {
-          margin-left: 0;
-          width: 100%;
-        }
+          .welcome {
+              padding: 25px;
+          }
 
-        .header {
-          flex-direction: column;
-          align-items: flex-start;
-          gap: 15px;
-        }
+          .welcome h2 {
+              font-size: 24px;
+          }
+
+          .summary {
+              grid-template-columns: 1fr;
+          }
+
+          .progress-info {
+              flex-direction: column;
+              align-items: flex-start;
+              gap: 10px;
+          }
+      }
+
+      @media (max-width: 480px) {
+          .main {
+              padding: 15px;
+          }
+
+          .header h1 {
+              font-size: 28px;
+          }
+
+          .date {
+              width: 100%;
+          }
+
+          .card .number {
+              font-size: 30px;
+          }
       }
     </style>
   </head>
