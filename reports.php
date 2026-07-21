@@ -264,12 +264,12 @@ while ($row = $weekly_breakdown_result->fetch_assoc()) {
     $weekEnd->modify('+6 days');
 
     $weekly_breakdown[] = [
-        "week" => "Week " . $week .
-            " (" .
+        "week" => "Week " . $week,
+
+        "range" =>
             $weekStart->format("M j, Y") .
             " – " .
-            $weekEnd->format("M j, Y") .
-            ")",
+            $weekEnd->format("M j, Y"),
 
         "hours" => (float)$row['total_hours'],
 
@@ -1971,7 +1971,15 @@ foreach ($weekly_plan as $index => $hours) {
 
           tbody.innerHTML += `
       <tr>
-        <td>${item.week}</td>
+        <td>
+          <div class="week-title">
+              ${item.week}
+          </div>
+
+          <div class="week-range">
+              ${item.range}
+          </div>
+        </td>
         <td>${item.hours}</td>
         <td>${item.sessions}</td>
         <td>${avg}</td>
