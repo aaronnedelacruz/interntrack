@@ -942,9 +942,7 @@ foreach ($all_deadlines as $d) {
           transition: .2s;
       }
 
-      .modal-header button:hover {
-          transform: rotate(90deg);
-      }
+      
 
       /* ==========================
         DEADLINE LIST
