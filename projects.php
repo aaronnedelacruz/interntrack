@@ -395,6 +395,87 @@ $projects = $conn->query("
       }
 
       /* ==========================
+        TIMER PANEL
+      ========================== */
+
+      .timer-panel{
+          display:none;
+
+          margin-bottom:30px;
+          padding:24px;
+
+          background:#fff;
+          border-radius:18px;
+
+          box-shadow:0 10px 25px rgba(0,0,0,.08);
+
+          align-items:center;
+          gap:30px;
+      }
+
+      .timer-panel.active{
+          display:flex;
+      }
+
+      .timer-left{
+          display:flex;
+          align-items:center;
+          gap:18px;
+          min-width:260px;
+      }
+
+      .timer-icon{
+          width:58px;
+          height:58px;
+
+          border-radius:14px;
+
+          background:#eef8f8;
+
+          display:flex;
+          justify-content:center;
+          align-items:center;
+
+          color:#0A9396;
+          font-size:28px;
+      }
+
+      .timer-display{
+          font-size:42px;
+          font-weight:700;
+          color:#005F73;
+
+          font-variant-numeric:tabular-nums;
+          letter-spacing:2px;
+      }
+
+      .timer-right{
+          flex:1;
+
+          display:flex;
+          flex-direction:column;
+          gap:14px;
+      }
+
+      .timer-right input{
+          width:100%;
+
+          padding:13px 16px;
+
+          border:2px solid #ddd;
+          border-radius:10px;
+
+          font-size:15px;
+
+          transition:.25s;
+      }
+
+      .timer-right input:focus{
+          border-color:#0A9396;
+          outline:none;
+      }
+
+      /* ==========================
       NEW LOG MODAL
       ========================== */
 
@@ -803,7 +884,6 @@ $projects = $conn->query("
         font-size: 17px;
         margin: 0 7px;
         cursor: pointer;
-        color: #005f73;
         transition: all 0.2s ease;
       }
 
@@ -866,25 +946,38 @@ $projects = $conn->query("
       /* EDIT */
 
       .edit-btn{
-          background:#e6f8f8;
-          color:#0A9396;
+          background:#0A9396;
+          color:#fff;
+      }
+
+      .edit-btn i{
+          color:#fff;
       }
 
       .edit-btn:hover{
-          background:#d4f1f2;
+          background:#087F81;
           transform:translateY(-2px);
       }
 
       /* DELETE */
 
       .delete-btn{
-          background:#fff1e6;
-          color:#EE9B00;
+          background:#EE9B00;
+          color:#fff;
+      }
+
+      .delete-btn i{
+          color:#fff;
       }
 
       .delete-btn:hover{
-          background:#ffe4bf;
+          background:#D48806;
           transform:translateY(-2px);
+      }
+
+      .edit-btn:hover i,
+      .delete-btn:hover i{
+          color:#fff;
       }
 
       .action-btn:active{
@@ -1131,25 +1224,57 @@ $projects = $conn->query("
       <!-- QUICK ACTIONS -->
 
       <div class="quick-actions">
-        <button class="quick-btn project-btn" onclick="openModal()">
+        <button id="newLogBtn" class="quick-btn project-btn" onclick="openModal()">
           <span>+</span>
           <span>New Log</span>
         </button>
 
-        <button class="quick-btn timer-btn">
-          <span>▶</span>
-          <span>Start Timer</span>
+        <button
+            type="button"
+            id="timerButton"
+            class="quick-btn timer-btn"
+            onclick="toggleTimer()">
+            <span id="timerIcon">▶</span>
+            <span id="timerText">Start Timer</span>
         </button>
+      </div>
+
+      <!-- TIMER PANEL -->
+
+      <div class="timer-panel" id="timerPanel">
+          <div class="timer-left">
+              <div class="timer-icon">
+                  <i class="bi bi-stopwatch-fill"></i>
+              </div>
+              <div class="timer-info">
+                  <div class="timer-display" id="timerDisplay">
+                      00:00:00
+                  </div>
+                  <div class="timer-started" id="timerStarted"></div>
+              </div>
+          </div>
+
+          <div class="timer-right">
+              <input
+                  type="text"
+                  id="timerProject"
+                  placeholder="Project Name"
+              >
+              <input
+                  type="text"
+                  id="timerActivity"
+                  placeholder="Activity"
+              >
+          </div>
+
       </div>
 
       <div id="logModal" class="modal">
         <div class="modal-content">
-
           <div class="modal-header">
             <h2>New Work Log</h2>
             <span class="close" onclick="closeModal()">&times;</span>
           </div>
-
           <form action="projects_process.php" method="POST">
             <input type="hidden" name="action" value="add" id="formAction">
             <input type="hidden" name="id" id="project_id">
@@ -1158,13 +1283,13 @@ $projects = $conn->query("
               <input
                 type="text"
                 name="project_name"
+                id="project_name"
                 required
               >
             </div>
 
             <div class="input-group">
               <label>Activity</label>
-
               <textarea
                 name="activity"
                 rows="4"
@@ -1174,7 +1299,6 @@ $projects = $conn->query("
 
             <div class="input-group">
               <label>Date</label>
-
               <input
                 type="date"
                 id="work_date"
@@ -1184,10 +1308,8 @@ $projects = $conn->query("
             </div>
 
             <div class="time-row">
-
               <div class="input-group">
                 <label>Start Time</label>
-
                 <input
                   type="time"
                   id="start_time"
@@ -1198,7 +1320,6 @@ $projects = $conn->query("
 
               <div class="input-group">
                 <label>End Time</label>
-
                 <input
                   type="time"
                   id="end_time"
@@ -1211,7 +1332,6 @@ $projects = $conn->query("
 
             <div class="input-group">
               <label>Hours</label>
-
               <input
                   type="number"
                   id="hours"
@@ -1226,7 +1346,6 @@ $projects = $conn->query("
                 class="save-log-btn">
                 Save Log
             </button>
-
           </form>
         </div>
       </div>
@@ -1457,6 +1576,262 @@ $projects = $conn->query("
       document.addEventListener("DOMContentLoaded", function () {
           document.getElementById("work_date").valueAsDate = new Date();
       });
+    </script>
+    <script>
+      let timerRunning=false;
+      let timerInterval;
+      let elapsedSeconds=0;
+      let sessionStart;
+
+      document.addEventListener("DOMContentLoaded", restoreTimer);
+
+      function restoreTimer(){
+
+          const formData = new FormData();
+          formData.append("action","get_timer");
+
+          fetch("projects_process.php",{
+              method:"POST",
+              body:formData
+          })
+          .then(response=>response.json())
+          .then(data=>{
+
+              if(!data.success) return;
+
+              timerRunning = true;
+
+              const parts = data.timer.started_at.split(/[- :]/);
+
+              sessionStart = new Date(
+                  parts[0],
+                  parts[1]-1,
+                  parts[2],
+                  parts[3],
+                  parts[4],
+                  parts[5]
+              );
+
+              elapsedSeconds = Math.floor(
+                  (new Date() - sessionStart) / 1000
+              );
+
+              document.getElementById("timerProject").value =
+                  data.timer.project_name;
+
+              document.getElementById("timerActivity").value =
+                  data.timer.activity;
+
+              document.getElementById("timerPanel").classList.add("active");
+
+              document.getElementById("timerStarted").textContent =
+                  formatTime(sessionStart) + " - In Progress";
+
+              updateTimer();
+
+              timerInterval = setInterval(updateTimer,1000);
+
+              document.getElementById("timerText").textContent =
+                  "Finish Session";
+
+              document.getElementById("timerIcon").textContent =
+                  "■";
+
+              const newLogBtn = document.getElementById("newLogBtn");
+
+              newLogBtn.disabled = true;
+              newLogBtn.style.opacity = ".6";
+              newLogBtn.style.cursor = "not-allowed";
+          });
+
+      }
+
+      function toggleTimer(){
+          if(!timerRunning){
+              startTimer();
+          }else{
+              finishTimer();
+          }
+      }
+
+      function startTimer(){
+
+          const project = document.getElementById("timerProject").value.trim();
+          const activity = document.getElementById("timerActivity").value.trim();
+
+
+          sessionStart = new Date();
+          elapsedSeconds = 0;
+
+          const formData = new FormData();
+
+          formData.append("action", "start_timer");
+          formData.append("project_name", project);
+          formData.append("activity", activity);
+          formData.append(
+              "started_at",
+              sessionStart.getFullYear() + "-" +
+              String(sessionStart.getMonth()+1).padStart(2,"0") + "-" +
+              String(sessionStart.getDate()).padStart(2,"0") + " " +
+              String(sessionStart.getHours()).padStart(2,"0") + ":" +
+              String(sessionStart.getMinutes()).padStart(2,"0") + ":" +
+              String(sessionStart.getSeconds()).padStart(2,"0")
+          );
+
+          fetch("projects_process.php",{
+              method:"POST",
+              body:formData
+          })
+          .then(response=>response.json())
+          .then(data=>{
+
+              if(!data.success){
+                  alert(data.message || "Failed to start timer.");
+                  return;
+              }
+
+              timerRunning = true;
+
+              document.getElementById("timerPanel").classList.add("active");
+
+              const newLogBtn = document.getElementById("newLogBtn");
+              newLogBtn.disabled = true;
+              newLogBtn.style.opacity = ".6";
+              newLogBtn.style.cursor = "not-allowed";
+              newLogBtn.title = "Finish the active timer first.";
+
+              document.getElementById("timerStarted").textContent =
+                  formatTime(sessionStart) + " - In Progress";
+
+              document.getElementById("timerText").textContent = "Finish Session";
+              document.getElementById("timerIcon").textContent = "■";
+
+              updateTimer();
+              timerInterval = setInterval(updateTimer,1000);
+
+          })
+          .catch(() => {
+              alert("Unable to start timer.");
+          });
+
+      }
+
+      function updateTimer(){
+          elapsedSeconds++;
+
+          const hrs=Math.floor(elapsedSeconds/3600);
+          const mins=Math.floor((elapsedSeconds%3600)/60);
+          const secs=elapsedSeconds%60;
+
+          document.getElementById("timerDisplay").textContent=
+              String(hrs).padStart(2,"0")+":"+
+              String(mins).padStart(2,"0")+":"+
+              String(secs).padStart(2,"0");
+      }
+
+      function finishTimer(){
+          const project = document.getElementById("timerProject").value;
+          const activity = document.getElementById("timerActivity").value;
+
+          if(project.trim()==="" || activity.trim()===""){
+              alert("Please enter project name and activity before finishing.");
+              return;
+          }
+
+          clearInterval(timerInterval);
+
+          timerRunning=false;
+
+          const sessionEnd=new Date();
+          const totalHours=((sessionEnd-sessionStart)/1000/60/60).toFixed(2);
+
+          document.getElementById("project_name").value=
+              document.getElementById("timerProject").value;
+
+          document.querySelector("textarea[name='activity']").value=
+              document.getElementById("timerActivity").value;
+
+          document.getElementById("start_time").value=
+              sessionStart.toTimeString().slice(0,5);
+
+          document.getElementById("end_time").value=
+              sessionEnd.toTimeString().slice(0,5);
+
+          document.getElementById("hours").value=
+              totalHours;
+
+          document.getElementById("timerDisplay").textContent="00:00:00";
+          document.getElementById("timerStarted").textContent="";
+
+          document.getElementById("timerPanel").classList.remove("active");
+
+          document.getElementById("timerText").textContent="Start Timer";
+          document.getElementById("timerIcon").textContent="▶";
+
+          const newLogBtn = document.getElementById("newLogBtn");
+
+          newLogBtn.disabled = false;
+          newLogBtn.style.opacity = "1";
+          newLogBtn.style.cursor = "pointer";
+          newLogBtn.title = "";
+
+          const finishData = new FormData();
+
+          finishData.append("action", "finish_timer");
+          finishData.append("project_name", project);
+          finishData.append("activity", activity);
+
+          finishData.append(
+              "work_date",
+              sessionStart.getFullYear() + "-" +
+              String(sessionStart.getMonth()+1).padStart(2,"0") + "-" +
+              String(sessionStart.getDate()).padStart(2,"0")
+          );
+
+          finishData.append(
+              "start_time",
+              sessionStart.toTimeString().slice(0,5)
+          );
+
+          finishData.append(
+              "end_time",
+              sessionEnd.toTimeString().slice(0,5)
+          );
+
+          finishData.append(
+              "hours",
+              totalHours
+          );
+
+          fetch("projects_process.php", {
+              method: "POST",
+              body: finishData
+          })
+          .then(response => response.json())
+          .then(data => {
+            if(data.success){
+
+                document.getElementById("timerProject").value = "";
+                document.getElementById("timerActivity").value = "";
+
+                location.reload();
+
+            }else{
+                alert(data.message || "Failed to save session.");
+            }
+        });
+      }
+
+      function formatTime(date){
+          let hrs=date.getHours();
+          const mins=String(date.getMinutes()).padStart(2,"0");
+          const ampm=hrs>=12?"PM":"AM";
+
+          hrs=hrs%12;
+          hrs=hrs?hrs:12;
+
+          return hrs+":"+mins+" "+ampm;
+      }
     </script>
     <script>
       function openModal() {

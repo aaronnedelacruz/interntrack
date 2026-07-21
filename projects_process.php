@@ -124,34 +124,182 @@ switch ($action) {
 
     case "delete":
 
-        $id = $_POST['id'];
+    $id = $_POST['id'];
+
+    $stmt = $conn->prepare("
+        DELETE FROM projects
+        WHERE
+            id=?
+        AND
+            user_id=?
+    ");
+
+    $stmt->bind_param(
+        "ii",
+        $id,
+        $user_id
+    );
+
+    $stmt->execute();
+    $stmt->close();
+
+    header("Location: projects.php?success=deleted");
+    exit();
+
+
+
+/* ==========================
+   START TIMER
+========================== */
+
+case "start_timer":
+
+    $project_name = $_POST['project_name'];
+    $activity = $_POST['activity'];
+    $started_at = $_POST['started_at'];
+
+    $stmt = $conn->prepare("
+        DELETE FROM active_timer
+        WHERE user_id=?
+    ");
+
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
+    $stmt->close();
+
+    $stmt = $conn->prepare("
+        INSERT INTO active_timer
+        (
+            user_id,
+            project_name,
+            activity,
+            started_at
+        )
+        VALUES
+        (?, ?, ?, ?)
+    ");
+
+    $stmt->bind_param(
+        "isss",
+        $user_id,
+        $project_name,
+        $activity,
+        $started_at
+    );
+
+    $success = $stmt->execute();
+
+    $stmt->close();
+
+    header("Content-Type: application/json");
+
+    echo json_encode([
+        "success" => $success
+    ]);
+
+    exit();
+
+
+
+case "finish_timer":
+
+    $project_name = $_POST['project_name'];
+    $activity     = $_POST['activity'];
+    $work_date    = $_POST['work_date'];
+    $start_time   = $_POST['start_time'];
+    $end_time     = $_POST['end_time'];
+    $hours        = $_POST['hours'];
+
+    $stmt = $conn->prepare("
+        INSERT INTO projects
+        (
+            user_id,
+            project_name,
+            activity,
+            work_date,
+            start_time,
+            end_time,
+            hours
+        )
+        VALUES
+        (?, ?, ?, ?, ?, ?, ?)
+    ");
+
+    $stmt->bind_param(
+        "isssssd",
+        $user_id,
+        $project_name,
+        $activity,
+        $work_date,
+        $start_time,
+        $end_time,
+        $hours
+    );
+
+    $success = $stmt->execute();
+
+    $stmt->close();
+
+    if($success){
 
         $stmt = $conn->prepare("
-            DELETE FROM projects
-            WHERE
-                id=?
-            AND
-                user_id=?
+            DELETE FROM active_timer
+            WHERE user_id=?
         ");
 
-        $stmt->bind_param(
-            "ii",
-            $id,
-            $user_id
-        );
-
+        $stmt->bind_param("i",$user_id);
         $stmt->execute();
         $stmt->close();
+    }
 
-        header("Location: projects.php?success=deleted");
-        exit();
+    header("Content-Type: application/json");
+
+    echo json_encode([
+        "success"=>$success
+    ]);
+
+    exit();
+    
+/* ==========================
+   GET ACTIVE TIMER
+========================== */
+
+case "get_timer":
+
+    $stmt = $conn->prepare("
+        SELECT
+            project_name,
+            activity,
+            started_at
+        FROM
+            active_timer
+        WHERE
+            user_id = ?
+        LIMIT 1
+    ");
+
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
+
+    $result = $stmt->get_result();
+    $timer = $result->fetch_assoc();
+
+    $stmt->close();
+
+    header("Content-Type: application/json");
+
+    echo json_encode([
+        "success" => $timer ? true : false,
+        "timer" => $timer
+    ]);
+
+    exit();
 
 
+default:
 
-    default:
-
-        header("Location: projects.php");
-        exit();
+    header("Location: projects.php");
+    exit();
 }
 
 $conn->close();
