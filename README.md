@@ -1,6 +1,8 @@
 # InternTrack
 ---
 
+<img src="images/Screenshot%202026-08-08%20144909.png" alt="Landing Page" width="900">
+
 ## Overview
 
 InternTrack is a web-based internship management system designed to simplify how students monitor and organize their internship experience. It centralizes attendance records, work logs, rendered hours, schedules, and progress tracking into a single application, reducing the need for manual calculations and spreadsheets.
@@ -23,6 +25,11 @@ Although originally developed as a self-hosted application, the system architect
 - Reports and data visualization
 - Responsive web interface
 - Relational database using MySQL
+
+
+
+
+
 
 ---
 
