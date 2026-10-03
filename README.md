@@ -115,7 +115,7 @@ Although originally developed as a self-hosted application, the system architect
 ---
 
 ## SQL Database Structure
-## users
+### users
 
 | Column | Data Type |
 |---------|-----------|
@@ -141,7 +141,7 @@ Although originally developed as a self-hosted application, the system architect
 
 ---
 
-## projects
+### projects
 
 | Column | Data Type |
 |---------|-----------|
@@ -157,7 +157,7 @@ Although originally developed as a self-hosted application, the system architect
 
 ---
 
-## deadlines
+### deadlines
 
 | Column | Data Type |
 |---------|-----------|
@@ -172,7 +172,7 @@ Although originally developed as a self-hosted application, the system architect
 
 ---
 
-## active_timer
+### active_timer
 
 | Column | Data Type |
 |---------|-----------|
