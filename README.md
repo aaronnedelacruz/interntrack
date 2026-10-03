@@ -90,8 +90,6 @@ Although originally developed as a self-hosted application, the system architect
 
 ## Screenshots
 
-Consider including screenshots for the following pages:
-
 - Login
 - Registration
 - Dashboard
@@ -106,15 +104,74 @@ Consider including screenshots for the following pages:
 
 Example:
 
-```text
-screenshots/
-├── login.png
-├── dashboard.png
-├── attendance.png
-├── logs.png
-├── reports.png
-└── calendar.png
-```
+## SQL Database Structure
+## users
+
+| Column | Data Type |
+|---------|-----------|
+| id (Primary Key) | INT |
+| first_name | VARCHAR |
+| last_name | VARCHAR |
+| email | VARCHAR |
+| password | VARCHAR |
+| created_at | TIMESTAMP |
+| student_id | VARCHAR |
+| school | VARCHAR |
+| degree_program | VARCHAR |
+| company | VARCHAR |
+| department | VARCHAR |
+| position_role | VARCHAR |
+| supervisor | VARCHAR |
+| professor | VARCHAR |
+| required_hours | INT |
+| hours_per_day | INT |
+| start_time | TIME |
+| end_time | TIME |
+| working_days | VARCHAR |
+
+---
+
+## projects
+
+| Column | Data Type |
+|---------|-----------|
+| id (Primary Key) | INT |
+| user_id (Foreign Key → users.id) | INT |
+| project_name | VARCHAR |
+| activity | TEXT |
+| work_date | DATE |
+| start_time | TIME |
+| end_time | TIME |
+| hours | DECIMAL(4,2) |
+| created_at | TIMESTAMP |
+
+---
+
+## deadlines
+
+| Column | Data Type |
+|---------|-----------|
+| id (Primary Key) | INT |
+| user_id (Foreign Key → users.id) | INT |
+| title | VARCHAR |
+| notes | TEXT |
+| due_date | DATE |
+| due_time | TIME |
+| is_completed | BOOLEAN (TINYINT(1)) |
+| created_at | TIMESTAMP |
+
+---
+
+## active_timer
+
+| Column | Data Type |
+|---------|-----------|
+| id (Primary Key) | INT |
+| user_id (Foreign Key → users.id) | INT |
+| project_name | VARCHAR |
+| activity | TEXT |
+| started_at | DATETIME |
+| created_at | TIMESTAMP |
 
 ---
 
