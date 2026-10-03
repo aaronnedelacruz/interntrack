@@ -1,8 +1,5 @@
 # InternTrack
 <img width="1875" height="798" alt="image" src="https://github.com/user-attachments/assets/9176d3b1-ccf3-461f-8f57-4ddbdf4a9b9e" />
-
-A self-hosted web application for managing internship (OJT) records, attendance, rendered hours, daily logs, and internship progress.
-
 ---
 
 ## Overview
