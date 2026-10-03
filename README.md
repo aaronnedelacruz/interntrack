@@ -11,9 +11,6 @@ The project was developed as a full-stack web application using PHP and MySQL in
 
 Although originally developed as a self-hosted application, the system architecture supports multiple user accounts through authentication and individual data separation.
 
-<h3>Landing Page</h3>
-<img src="images/prev_landing_page.png" alt="Landing Page" width="900">
-
 <h3>Dashboard</h3>
 <img src="images/prev_dashboard.png" alt="Dashboard" width="900">
 
