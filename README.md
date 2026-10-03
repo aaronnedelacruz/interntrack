@@ -1,7 +1,7 @@
 # InternTrack
 ---
 
-<img src="images/Screenshot%202026-08-08%20144909.png" alt="Landing Page" width="900">
+<img src="images/prev_landing_page.png" alt="Landing Page" width="900">
 
 ## Overview
 
