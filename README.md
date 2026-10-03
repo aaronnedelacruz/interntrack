@@ -1,7 +1,7 @@
 # InternTrack
 ---
 
-<img src="images/Screenshot%202026-08-08%20144909.png" alt="Landing Page" width="900">
+<img src="images/prev_landing_page.png" alt="Landing Page" width="900">
 
 ## Overview
 
@@ -10,9 +10,6 @@ InternTrack is a web-based internship management system designed to simplify how
 The project was developed as a full-stack web application using PHP and MySQL in a local development environment. It features secure user authentication, CRUD functionality, database integration, and responsive web design while demonstrating practical full-stack development concepts.
 
 Although originally developed as a self-hosted application, the system architecture supports multiple user accounts through authentication and individual data separation.
-
-<h3>Landing Page</h3>
-<img src="images/prev_landing_page.png" alt="Landing Page" width="900">
 
 <h3>Dashboard</h3>
 <img src="images/prev_dashboard.png" alt="Dashboard" width="900">
