@@ -1,4 +1,5 @@
 # InternTrack
+<img width="1875" height="798" alt="image" src="https://github.com/user-attachments/assets/9176d3b1-ccf3-461f-8f57-4ddbdf4a9b9e" />
 
 A self-hosted web application for managing internship (OJT) records, attendance, rendered hours, daily logs, and internship progress.
 
@@ -87,22 +88,6 @@ Although originally developed as a self-hosted application, the system architect
 - Account settings
 
 ---
-
-## Screenshots
-
-- Login
-- Registration
-- Dashboard
-- Attendance
-- Daily Logs
-- Timer Session
-- Calendar
-- Reports
-- Progress Tracking
-- Profile
-- Mobile Responsive View
-
-Example:
 
 ## SQL Database Structure
 ## users
@@ -214,7 +199,7 @@ The following software is required to run the application locally.
 - PHP 8.x
 - MySQL
 - phpMyAdmin
-- A modern web browser
+- Modern web browser
 - Git (optional, for cloning the repository)
 
 ---
