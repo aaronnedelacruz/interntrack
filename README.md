@@ -201,16 +201,6 @@ The following software is required to run the application locally.
 
 ---
 
-## Live Demo
-
-A public live demo is currently unavailable.
-
-InternTrack was developed as a locally hosted PHP and MySQL application using XAMPP. Because it relies on a local Apache server and MySQL database, deployment requires additional server configuration that has not yet been completed.
-
-The application can be run locally by following the installation instructions below.
-
----
-
 ## Installation
 
 ### 1. Clone the repository
@@ -289,68 +279,6 @@ http://localhost/InternTrack
 
 ---
 
-## Project Structure
-
-```text
-InternTrack
-│
-├── assets/
-├── css/
-├── js/
-├── database/
-├── includes/
-├── pages/
-├── uploads/
-├── index.php
-├── README.md
-└── ...
-```
-
-Update this structure to match your repository.
-
----
-
-## Database Structure
-
-The application uses a relational MySQL database to organize internship data.
-
-Consider including:
-
-- Entity Relationship Diagram (ERD)
-- Database schema
-- Table relationships
-- Primary and foreign keys
-
-Example:
-
-```text
-Users
-│
-├── id
-├── name
-├── email
-└── password
-
-Attendance
-│
-├── id
-├── user_id
-├── date
-├── time_in
-└── time_out
-
-Daily Logs
-│
-├── id
-├── user_id
-├── work_description
-└── date
-```
-
-An ER Diagram generated from MySQL Workbench is recommended for better visualization.
-
----
-
 ## Learning Outcomes
 
 This project strengthened my experience in:
@@ -375,14 +303,11 @@ Potential enhancements include:
 
 - Email notifications
 - PDF report generation
-- Excel export
 - Dark mode
 - Mobile optimization
-- Supervisor accounts
 - Administrator dashboard
-- Cloud deployment
+- Cloud database deployment
 - Automatic backup system
-- Multi-organization support
 
 ---
 
@@ -396,24 +321,6 @@ Any screenshots or demonstration data included in this repository are sample dat
 
 ---
 
-## License
-
-This project is licensed under the MIT License.
-
----
-
-## Author
+## Contributor
 
 **Aaronne Christian E. Dela Cruz**
-
-Portfolio
-
-https://aaronnedelacruz.github.io/
-
-GitHub
-
-https://github.com/aaronnedelacruz
-
-LinkedIn
-
-(Add your LinkedIn profile here.)
