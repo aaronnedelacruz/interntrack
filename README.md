@@ -11,6 +11,33 @@ The project was developed as a full-stack web application using PHP and MySQL in
 
 Although originally developed as a self-hosted application, the system architecture supports multiple user accounts through authentication and individual data separation.
 
+<h3>Landing Page</h3>
+<img src="images/prev_landing_page.png" alt="Landing Page" width="900">
+
+<h3>Dashboard</h3>
+<img src="images/prev_dashboard.png" alt="Dashboard" width="900">
+
+<h3>Calendar</h3>
+<img src="images/prev_calendar.png" alt="Calendar" width="900">
+
+<h3>Projects</h3>
+<img src="images/prev_project.png" alt="Projects" width="900">
+
+<h3>Reports - Overview</h3>
+<img src="images/prev_report.png" alt="Reports Overview" width="900">
+
+<h3>Reports - Weekly Report</h3>
+<img src="images/prev_report2.png" alt="Reports Progress" width="900">
+
+<h3>Reports - Monthly Report</h3>
+<img src="images/prev_report3.png" alt="Reports Analytics" width="900">
+
+<h3>Reports - Charts</h3>
+<img src="images/prev_report4.png" alt="Reports Charts" width="900">
+
+<h3>Reports - Weekly Completion Forecast Table </h3>
+<img src="images/prev_report5.png" alt="Reports Summary" width="900">
+
 ---
 
 ## Project Highlights
@@ -25,11 +52,6 @@ Although originally developed as a self-hosted application, the system architect
 - Reports and data visualization
 - Responsive web interface
 - Relational database using MySQL
-
-
-
-
-
 
 ---
 
