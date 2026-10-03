@@ -1,5 +1,5 @@
 # InternTrack
-![Landing Page](images/Screenshot 2026-08-08 144909.png)
+[Landing Page](images/Screenshot 2026-08-08 144909.png)
 ---
 
 ## Overview
